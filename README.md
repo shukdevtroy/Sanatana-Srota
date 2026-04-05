@@ -16,6 +16,7 @@ Vedic scriptures · AI Guru · Live Panchang · Divine Family Tree · Mandala Cr
 
 ## 📋 Table of Contents
 
+- [Official Website](#-official-website)
 - [Overview](#-overview)
 - [Repository Structure](#-repository-structure)
 - [Deploying to GitHub Pages](#-deploying-to-github-pages)
@@ -40,6 +41,10 @@ Vedic scriptures · AI Guru · Live Panchang · Divine Family Tree · Mandala Cr
 - [Frequently Asked Questions](#-frequently-asked-questions)
 
 ---
+
+## 🔗 Official Website
+
+[Sanatana-Srota Official Website](https://shukdevtroy.github.io/Spotigrate-App/)
 
 ## 🌟 Overview
 
