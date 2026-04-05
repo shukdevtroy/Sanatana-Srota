@@ -538,7 +538,7 @@ A: You don't need to. The festivals are calculated dynamically from tithi formul
 
 ---
 
-## Contacts
+## ☎️ Contacts
 
 For any questions or issues, please contact:
 
