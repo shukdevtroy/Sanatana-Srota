@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════
    CSS VARIABLES & RESET
@@ -992,6 +993,110 @@ section {
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--text-muted);
+}
+/* RAG status bar */
+#rag-status-bar {
+  background: rgba(75,0,130,0.15);
+  border-bottom: 1px solid rgba(75,0,130,0.4);
+  padding: 7px 24px;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-family: var(--font-heading);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+#rag-status-bar.visible { display: flex; }
+.rag-badge {
+  background: linear-gradient(135deg, #4B0082, var(--saffron));
+  color: var(--gold-pale);
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  font-weight: 700;
+}
+.rag-text { color: var(--text-muted); flex: 1; }
+.rag-book-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.rag-pill {
+  background: rgba(212,160,23,0.1);
+  border: 1px solid var(--border-gold);
+  color: var(--gold);
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 9px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; gap: 4px;
+}
+.rag-pill:hover { background: rgba(212,160,23,0.2); }
+.rag-pill.active { background: rgba(255,107,0,0.2); border-color: var(--saffron); color: var(--saffron-light); }
+.rag-pill .pill-x { opacity: 0.5; font-size: 8px; }
+.rag-index-btn {
+  background: transparent;
+  border: 1px solid var(--border-saffron);
+  color: var(--saffron-light);
+  padding: 3px 12px;
+  border-radius: 3px;
+  font-family: var(--font-heading);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.rag-index-btn:hover { background: rgba(255,107,0,0.1); }
+.rag-index-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+#rag-progress {
+  width: 100%;
+  height: 3px;
+  background: rgba(212,160,23,0.1);
+  border-radius: 99px;
+  overflow: hidden;
+  display: none;
+}
+#rag-progress.visible { display: block; }
+#rag-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #4B0082, var(--saffron), var(--gold));
+  border-radius: 99px;
+  transition: width 0.3s ease;
+}
+/* RAG source block styling */
+.rag-context-block {
+  background: rgba(75,0,130,0.1);
+  border: 1px solid rgba(75,0,130,0.35);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-top: 8px;
+  font-size: 13px;
+}
+.rag-context-title {
+  font-family: var(--font-heading);
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #9b59d4;
+  margin-bottom: 5px;
+}
+.rag-chunk-item {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+  border-left: 2px solid rgba(155,89,212,0.4);
+  padding-left: 8px;
+  margin-bottom: 5px;
+  font-style: italic;
+}
+.rag-chunk-src {
+  font-family: var(--font-heading);
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  margin-top: 2px;
 }
 /* Messages */
 .chat-messages {
@@ -3743,6 +3848,20 @@ footer {
           <span class="toggle-switch"></span>
           <span class="toggle-text">🔍 Web Search</span>
         </label>
+        <label class="web-search-toggle" title="Enable RAG: AI answers from the actual sacred text PDFs" style="margin-left:0;">
+          <input type="checkbox" class="toggle-cb" id="rag-cb" onchange="toggleRAG(this.checked)" />
+          <span class="toggle-switch"></span>
+          <span class="toggle-text">📚 Sacred Texts RAG</span>
+        </label>
+      </div>
+
+      <!-- RAG Status Bar -->
+      <div id="rag-status-bar">
+        <span class="rag-badge">RAG ACTIVE</span>
+        <span class="rag-text" id="rag-status-text">No texts indexed yet. Index a PDF to enable retrieval.</span>
+        <div class="rag-book-pills" id="rag-book-pills"></div>
+        <button class="rag-index-btn" id="rag-index-btn" onclick="openRAGIndexModal()">＋ Index PDF</button>
+        <div id="rag-progress" style="width:100%"><div id="rag-progress-bar"></div></div>
       </div>
 
       <!-- Messages -->
@@ -4023,7 +4142,9 @@ function renderBooks() {
           <button class="btn-read" onclick="openPDF('${book.file}','${book.title}')">
             📖 Read
           </button>
-        
+          <button class="btn-read" onclick="indexBookForRAG('${book.file}','${book.title}')" style="background:rgba(75,0,130,0.3);border-color:rgba(75,0,130,0.5);color:#c084fc;font-size:10px;padding:6px 12px;" title="Index this PDF for AI RAG retrieval">
+            🧠 Index for AI
+          </button>
         </div>
       </div>`;
     grid.appendChild(card);
@@ -4273,7 +4394,7 @@ function showNotification(msg) {
 function getTime() {
   return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 }
-function addMessage(role, content, sources = []) {
+function addMessage(role, content, sources = [], ragChunks = []) {
   const msgs = document.getElementById('chat-messages');
   const msgDiv = document.createElement('div');
   msgDiv.className = 'msg ' + role;
@@ -4282,6 +4403,16 @@ function addMessage(role, content, sources = []) {
     sourcesHTML = `<div class="sources-block">
       <div class="sources-title">🔍 Sources</div>
       ${sources.map(s => `<a class="source-link" href="${s.url || '#'}" target="_blank" rel="noopener">${s.title || s.url || 'Source'}</a>`).join('')}
+    </div>`;
+  }
+  let ragHTML = '';
+  if (ragChunks && ragChunks.length > 0) {
+    ragHTML = `<div class="rag-context-block">
+      <div class="rag-context-title">📚 Retrieved from Sacred Texts</div>
+      ${ragChunks.map(c => `
+        <div class="rag-chunk-item">${c.text.substring(0, 200).replace(/</g,'&lt;')}…</div>
+        <div class="rag-chunk-src">— ${c.bookTitle} · relevance: ${(c.score * 100).toFixed(0)}%</div>
+      `).join('')}
     </div>`;
   }
   const formattedContent = content
@@ -4293,6 +4424,7 @@ function addMessage(role, content, sources = []) {
     <div class="msg-body">
       <div class="msg-bubble">${formattedContent}</div>
       ${sourcesHTML}
+      ${ragHTML}
       <div class="msg-time">${getTime()}</div>
     </div>`;
   msgs.appendChild(msgDiv);
@@ -4400,6 +4532,7 @@ async function sendMessage() {
   const useWebSearch = document.getElementById('web-search-cb').checked;
   let sources = [];
   let searchContext = '';
+  let ragChunks = [];
   try {
     // Web search
     if (useWebSearch) {
@@ -4409,8 +4542,15 @@ async function sendMessage() {
         searchContext = `\n\n[Web Search Context]: ${searchResult.summary}`;
       }
     }
+    // RAG retrieval
+    let ragContext = '';
+    if (RAG.enabled && RAG.index.length) {
+      const ragResult = buildRAGContext(userMsg);
+      ragContext = ragResult.context;
+      ragChunks = ragResult.ragChunks;
+    }
     const msgs = [
-      { role: 'system', content: SYSTEM_PROMPT + searchContext },
+      { role: 'system', content: SYSTEM_PROMPT + searchContext + ragContext },
       ...chatHistory.slice(-10)
     ];
     let reply = '';
@@ -4419,11 +4559,11 @@ async function sendMessage() {
     } else if (provider === 'or') {
       reply = await callOpenRouter(msgs, modelName);
     } else if (provider === 'hf') {
-      reply = await callHuggingFace(userMsg + searchContext, modelName);
+      reply = await callHuggingFace(userMsg + searchContext + ragContext, modelName);
     }
     chatHistory.push({ role: 'assistant', content: reply });
     removeTyping();
-    addMessage('bot', reply, sources);
+    addMessage('bot', reply, sources, ragChunks);
   } catch (err) {
     removeTyping();
     let errMsg = err.message || 'An error occurred.';
@@ -4447,6 +4587,296 @@ function clearInput() {
   inp.style.height = 'auto';
   inp.focus();
 }
+/* ═══════════════════════════════════════════════════════
+   RAG ENGINE — TF-IDF + COSINE SIMILARITY
+   Indexes PDFs in the browser using PDF.js, stores chunks,
+   and retrieves top-K relevant passages for every query.
+═══════════════════════════════════════════════════════ */
+
+// Configure PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+/* --- RAG State ---------------------------------------- */
+const RAG = {
+  enabled: false,
+  index: [],      // [{ bookTitle, chunkIndex, text, tf }]
+  idf: {},        // term -> idf score across all chunks
+  books: {},      // bookTitle -> { chunkCount, color }
+  stopWords: new Set(['the','a','an','and','or','but','in','on','at','to','for','of','with','by','from','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','shall','can','not','this','that','these','those','it','its','they','them','their','we','us','our','you','your','he','she','him','her','his','i','me','my','so','as','if','then','than','when','where','who','which','what','how','all','also','more','about','up','out','no','into','through','after','before','between','same','other','such','each','both','over','under','again','further','only','own','too','very','just','most','some','any','there','here','her','him','his','my','our','your'])
+};
+
+/* --- Tokenize ------------------------------------------ */
+function tokenize(text) {
+  return text.toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter(w => w.length > 2 && !RAG.stopWords.has(w));
+}
+
+/* --- TF for one chunk ---------------------------------- */
+function computeTF(tokens) {
+  const tf = {};
+  tokens.forEach(t => { tf[t] = (tf[t] || 0) + 1; });
+  const len = tokens.length || 1;
+  Object.keys(tf).forEach(t => { tf[t] /= len; });
+  return tf;
+}
+
+/* --- Rebuild IDF after adding new chunks --------------- */
+function rebuildIDF() {
+  const df = {};
+  RAG.index.forEach(chunk => {
+    Object.keys(chunk.tf).forEach(t => { df[t] = (df[t] || 0) + 1; });
+  });
+  const N = RAG.index.length || 1;
+  RAG.idf = {};
+  Object.keys(df).forEach(t => {
+    RAG.idf[t] = Math.log((N + 1) / (df[t] + 1)) + 1;
+  });
+}
+
+/* --- TF-IDF vector for a chunk or query ---------------- */
+function tfidfVector(tf) {
+  const vec = {};
+  Object.keys(tf).forEach(t => {
+    vec[t] = tf[t] * (RAG.idf[t] || 1);
+  });
+  return vec;
+}
+
+/* --- Cosine similarity --------------------------------- */
+function cosine(vecA, vecB) {
+  const keysA = Object.keys(vecA);
+  let dot = 0, normA = 0, normB = 0;
+  keysA.forEach(t => {
+    dot += (vecA[t] || 0) * (vecB[t] || 0);
+    normA += vecA[t] ** 2;
+  });
+  Object.values(vecB).forEach(v => { normB += v ** 2; });
+  if (!normA || !normB) return 0;
+  return dot / (Math.sqrt(normA) * Math.sqrt(normB));
+}
+
+/* --- Retrieve top-K chunks for a query ----------------- */
+function retrieveChunks(query, topK = 4) {
+  if (!RAG.index.length) return [];
+  const qTokens = tokenize(query);
+  const qTF = computeTF(qTokens);
+  const qVec = tfidfVector(qTF);
+  const scored = RAG.index.map(chunk => ({
+    ...chunk,
+    score: cosine(qVec, tfidfVector(chunk.tf))
+  }));
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, topK).filter(c => c.score > 0);
+}
+
+/* --- Extract text from a PDF (by URL or File) ---------- */
+async function extractPDFText(source) {
+  let pdfDoc;
+  if (source instanceof File) {
+    const ab = await source.arrayBuffer();
+    pdfDoc = await pdfjsLib.getDocument({ data: ab }).promise;
+  } else {
+    pdfDoc = await pdfjsLib.getDocument(source).promise;
+  }
+  const numPages = pdfDoc.numPages;
+  const texts = [];
+  for (let p = 1; p <= numPages; p++) {
+    const page = await pdfDoc.getPage(p);
+    const content = await page.getTextContent();
+    texts.push(content.items.map(i => i.str).join(' '));
+    // Update progress bar
+    const pct = Math.round((p / numPages) * 100);
+    setRAGProgress(pct);
+  }
+  return texts.join('\n');
+}
+
+/* --- Chunk text into ~400-token chunks with overlap ---- */
+function chunkText(text, chunkSize = 400, overlap = 80) {
+  const words = text.split(/\s+/).filter(Boolean);
+  const chunks = [];
+  let i = 0;
+  while (i < words.length) {
+    chunks.push(words.slice(i, i + chunkSize).join(' '));
+    i += (chunkSize - overlap);
+  }
+  return chunks;
+}
+
+/* --- Index a single book ------------------------------- */
+async function indexBook(source, bookTitle) {
+  // Remove existing chunks for this book first
+  RAG.index = RAG.index.filter(c => c.bookTitle !== bookTitle);
+
+  showRAGProgress();
+  setRAGProgress(0);
+  updateRAGStatusText(`Extracting text from "${bookTitle}"…`);
+
+  try {
+    const rawText = await extractPDFText(source);
+    const chunks = chunkText(rawText);
+    updateRAGStatusText(`Indexing ${chunks.length} chunks from "${bookTitle}"…`);
+
+    chunks.forEach((text, idx) => {
+      const tokens = tokenize(text);
+      if (tokens.length < 10) return; // skip near-empty chunks
+      const tf = computeTF(tokens);
+      RAG.index.push({ bookTitle, chunkIndex: idx, text, tf });
+    });
+
+    rebuildIDF();
+    RAG.books[bookTitle] = { chunkCount: chunks.length };
+    updateRAGUI();
+    showNotification(`📚 "${bookTitle}" indexed — ${RAG.index.filter(c=>c.bookTitle===bookTitle).length} chunks ready`);
+    return true;
+  } catch(e) {
+    showNotification(`⚠️ Could not index "${bookTitle}": ${e.message}`);
+    return false;
+  } finally {
+    hideRAGProgress();
+    updateRAGStatusText(Object.keys(RAG.books).length
+      ? `${RAG.index.length} chunks from ${Object.keys(RAG.books).length} text(s) indexed`
+      : 'No texts indexed yet');
+  }
+}
+
+/* --- Index a book from the library ----------------------
+   PDFs live in the same folder as new_edition.html.
+   On GitHub Pages / any HTTP server the relative path loads
+   automatically.  On file:// (local PC), browsers block
+   relative fetches so we fall back to a file picker —
+   the user just selects the same file from their folder.
+   The "Upload Your Own PDF" option handles extra PDFs.      */
+async function indexBookForRAG(filename, title) {
+  if (!RAG.enabled) {
+    document.getElementById('rag-cb').checked = true;
+    toggleRAG(true);
+  }
+
+  // HTTP/HTTPS server (GitHub Pages, localhost, etc.) — load directly
+  if (location.protocol !== 'file:') {
+    const ok = await indexBook(filename, title);
+    if (ok) document.getElementById('chat').scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+
+  // file:// — browser blocks relative fetches; use a hidden file picker instead.
+  // Pre-store the book title so it indexes under the correct name regardless of filename chosen.
+  window._pendingRAGBookTitle = title;
+  let picker = document.getElementById('_rag-book-picker');
+  if (!picker) {
+    picker = document.createElement('input');
+    picker.type = 'file';
+    picker.accept = '.pdf';
+    picker.id = '_rag-book-picker';
+    picker.style.display = 'none';
+    document.body.appendChild(picker);
+    picker.addEventListener('change', function () {
+      if (!this.files || !this.files[0]) return;
+      const file = this.files[0];
+      const t    = window._pendingRAGBookTitle || file.name.replace(/\.pdf$/i, '');
+      window._pendingRAGBookTitle = null;
+      this.value = ''; // reset so same file can be picked again next time
+      indexBook(file, t).then(ok => {
+        if (ok) document.getElementById('chat').scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+  }
+  showNotification(`📂 Local mode — select "${filename}" from your SANATANS folder`);
+  picker.click();
+}
+/* --- Toggle RAG on/off --------------------------------- */
+function toggleRAG(enabled) {
+  RAG.enabled = enabled;
+  document.getElementById('rag-status-bar').classList.toggle('visible', enabled);
+  if (enabled && Object.keys(RAG.books).length === 0) {
+    updateRAGStatusText('No texts indexed yet. Click "＋ Index PDF" or use "🧠 Index for AI" on a book card.');
+  }
+}
+
+/* --- UI helpers ---------------------------------------- */
+function setRAGProgress(pct) {
+  document.getElementById('rag-progress-bar').style.width = pct + '%';
+}
+function showRAGProgress() {
+  document.getElementById('rag-progress').classList.add('visible');
+  document.getElementById('rag-index-btn').disabled = true;
+}
+function hideRAGProgress() {
+  document.getElementById('rag-progress').classList.remove('visible');
+  document.getElementById('rag-index-btn').disabled = false;
+  setRAGProgress(0);
+}
+function updateRAGStatusText(text) {
+  document.getElementById('rag-status-text').textContent = text;
+}
+function updateRAGUI() {
+  const pills = document.getElementById('rag-book-pills');
+  pills.innerHTML = '';
+  Object.keys(RAG.books).forEach(title => {
+    const pill = document.createElement('span');
+    pill.className = 'rag-pill active';
+    pill.innerHTML = `📖 ${title} <span class="pill-x" onclick="removeRAGBook('${title}',event)">✕</span>`;
+    pills.appendChild(pill);
+  });
+}
+function removeRAGBook(title, e) {
+  e.stopPropagation();
+  RAG.index = RAG.index.filter(c => c.bookTitle !== title);
+  delete RAG.books[title];
+  rebuildIDF();
+  updateRAGUI();
+  updateRAGStatusText(Object.keys(RAG.books).length
+    ? `${RAG.index.length} chunks from ${Object.keys(RAG.books).length} text(s) indexed`
+    : 'No texts indexed yet');
+  showNotification(`🗑️ "${title}" removed from RAG index`);
+}
+
+/* --- RAG Index Modal ----------------------------------- */
+function openRAGIndexModal() {
+  // Populate book list in modal
+  const container = document.getElementById('rag-modal-books');
+  container.innerHTML = '';
+  BOOKS.forEach(book => {
+    const indexed = !!RAG.books[book.title];
+    const btn = document.createElement('button');
+    btn.style.cssText = `background:${indexed ? 'rgba(75,0,130,0.25)' : 'var(--bg-card)'};border:1px solid ${indexed ? 'rgba(155,89,212,0.5)' : 'var(--border-gold)'};color:${indexed ? '#c084fc' : 'var(--text-secondary)'};padding:8px 12px;border-radius:4px;font-family:var(--font-heading);font-size:10px;letter-spacing:0.1em;cursor:pointer;text-align:left;transition:all 0.2s;`;
+    btn.innerHTML = `${book.symbol} ${book.title}${indexed ? ' ✓' : ''}`;
+    btn.onclick = async () => {
+      closeRAGModal();
+      await indexBookForRAG(book.file, book.title);
+    };
+    container.appendChild(btn);
+  });
+  document.getElementById('rag-modal-overlay').style.display = 'block';
+  document.getElementById('rag-modal').style.display = 'block';
+}
+function closeRAGModal() {
+  document.getElementById('rag-modal-overlay').style.display = 'none';
+  document.getElementById('rag-modal').style.display = 'none';
+}
+function handleRAGFileSelect(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const title = file.name.replace(/\.pdf$/i, '');
+  document.getElementById('rag-file-label').textContent = file.name;
+  closeRAGModal();
+  indexBook(file, title);
+}
+
+/* --- Build RAG context string for prompt --------------- */
+function buildRAGContext(query) {
+  if (!RAG.enabled || !RAG.index.length) return { context: '', ragChunks: [] };
+  const chunks = retrieveChunks(query, 4);
+  if (!chunks.length) return { context: '', ragChunks: [] };
+  const context = chunks.map((c, i) =>
+    `[Passage ${i+1} from "${c.bookTitle}"]: ${c.text.substring(0, 600)}`
+  ).join('\n\n');
+  return { context: `\n\n[Sacred Text Passages — use these as primary reference, cite the source]:\n${context}`, ragChunks: chunks };
+}
+
 // Auto-resize textarea & show clear button
 document.getElementById('chat-input').addEventListener('input', function() {
   this.style.height = 'auto';
@@ -6021,6 +6451,27 @@ function switchPodcastTab(tab, btn) {
   if (western) western.style.display = tab === 'western' ? 'grid' : 'none';
 }
 </script>
+
+<!-- ═══════════════ RAG INDEX MODAL ═══════════════ -->
+<div id="rag-modal-overlay" onclick="closeRAGModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:10000;backdrop-filter:blur(4px);"></div>
+<div id="rag-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10001;background:var(--bg-panel);border:1px solid var(--border-gold);border-radius:8px;padding:32px;max-width:520px;width:90%;max-height:80vh;overflow-y:auto;">
+  <div style="font-family:var(--font-display);font-size:18px;color:var(--gold-bright);margin-bottom:6px;">📚 Index Sacred Texts for RAG</div>
+  <div style="font-family:var(--font-heading);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:20px;">Select PDFs to index — the AI will retrieve relevant passages when answering</div>
+
+  <div style="font-family:var(--font-heading);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--saffron);margin-bottom:10px;">From the Library</div>
+  <div id="rag-modal-books" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;"></div>
+
+  <div style="font-family:var(--font-heading);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--saffron);margin-bottom:10px;">Upload Your Own PDF</div>
+  <label style="display:flex;align-items:center;gap:10px;background:var(--bg-card);border:1px dashed var(--border-gold);border-radius:4px;padding:12px 16px;cursor:pointer;color:var(--text-secondary);font-family:var(--font-heading);font-size:11px;">
+    <span>📂</span>
+    <span id="rag-file-label">Choose a PDF file…</span>
+    <input type="file" id="rag-file-input" accept=".pdf" style="display:none;" onchange="handleRAGFileSelect(this)" />
+  </label>
+
+  <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;">
+    <button onclick="closeRAGModal()" style="background:transparent;border:1px solid var(--border-gold);color:var(--text-muted);padding:8px 20px;border-radius:3px;font-family:var(--font-heading);font-size:11px;cursor:pointer;">Cancel</button>
+  </div>
+</div>
 
 <!-- ═══════════════ DEITY IMAGE POPUP ═══════════════ -->
 <div id="deity-popup-overlay" onclick="closeDeityPopup()"></div>
