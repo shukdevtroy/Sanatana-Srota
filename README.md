@@ -39,12 +39,13 @@ Vedic scriptures · AI Guru · Live Panchang · Divine Family Tree · Mandala Cr
 - [Adding or Replacing PDF Books](#-adding-or-replacing-pdf-books)
 - [Customisation Tips](#-customisation-tips)
 - [Frequently Asked Questions](#-frequently-asked-questions)
+- [Contacts](#-contacts)
 
 ---
 
 ## 🔗 Official Website
 
-[Sanatana-Srota Official Website](https://shukdevtroy.github.io/Spotigrate-App/)
+[Sanatana-Srota Official Website](https://shukdevtroy.github.io/Sanatana-Srota/)
 
 ## 🌟 Overview
 
@@ -534,6 +535,19 @@ A: The Panchang is calculated from astronomical formulas using UTC time. Regiona
 
 **Q: How do I update the festival list for a new year?**
 A: You don't need to. The festivals are calculated dynamically from tithi formulas each time the page loads, so they automatically show correct dates for whatever the current year is.
+
+---
+
+## Contacts
+
+For any questions or issues, please contact:
+
+- **Email**: [Click to here send email](https://mail.google.com/mail/?view=cm&fs=1&to=shukdevdatta@gmail.com)
+- **GitHub**: [Click to here to access the Github Profile](https://github.com/shukdevtroy)
+- **WhatsApp**: [Click here to chat](https://wa.me/+8801719296601)
+- **HuggingFace Profile**: [Click to here to access the HuggingFace Profile](https://huggingface.co/shukdevdatta123))
+- **HuggingFace Profile**: [Click to here to access the 2nd HuggingFace Profile](https://huggingface.co/shukdevdattaEX))
+- **HuggingFace Profile**: [Click to here to access the 3rd HuggingFace Profile](https://huggingface.co/shukdev3))
 
 ---
 
