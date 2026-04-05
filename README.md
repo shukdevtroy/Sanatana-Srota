@@ -39,13 +39,15 @@ Vedic scriptures · AI Guru · Live Panchang · Divine Family Tree · Mandala Cr
 - [Adding or Replacing PDF Books](#-adding-or-replacing-pdf-books)
 - [Customisation Tips](#-customisation-tips)
 - [Frequently Asked Questions](#-frequently-asked-questions)
-- [Contacts](#-contacts)
+- [Contacts](#contacts)
 
 ---
 
 ## 🔗 Official Website
 
 [Sanatana-Srota Official Website](https://shukdevtroy.github.io/Sanatana-Srota/)
+
+---
 
 ## 🌟 Overview
 
@@ -151,7 +153,7 @@ The library contains 10 sacred scriptures displayed as glowing book cards:
 
 - **📖 Read** — Opens the PDF in a full-screen in-browser viewer with a "New Tab" option.
 - **⬇ Download PDF** — Triggers a direct download of the PDF file.
-- **🧠 Index for AI** — Processes the PDF through the RAG engine so the AI Guru can quote it when answering your questions. See the [RAG section](#sacred-texts-rag) for full details.
+- **🧠 Index for AI** — Processes the PDF through the RAG engine so the AI Guru can quote it when answering your questions. See the [RAG section](#sacred-texts-rag--indexing-guide) for full details.
 
 ---
 
@@ -538,16 +540,16 @@ A: You don't need to. The festivals are calculated dynamically from tithi formul
 
 ---
 
-## ☎️ Contacts
+## Contacts
 
 For any questions or issues, please contact:
 
-- **Email**: [Click to here send email](https://mail.google.com/mail/?view=cm&fs=1&to=shukdevdatta@gmail.com)
-- **GitHub**: [Click to here to access the Github Profile](https://github.com/shukdevtroy)
+- **Email**: [Click here to send email](https://mail.google.com/mail/?view=cm&fs=1&to=shukdevdatta@gmail.com)
+- **GitHub**: [Click here to access the GitHub Profile](https://github.com/shukdevtroy)
 - **WhatsApp**: [Click here to chat](https://wa.me/+8801719296601)
-- **HuggingFace Profile**: [Click to here to access the HuggingFace Profile](https://huggingface.co/shukdevdatta123))
-- **HuggingFace Profile**: [Click to here to access the 2nd HuggingFace Profile](https://huggingface.co/shukdevdattaEX))
-- **HuggingFace Profile**: [Click to here to access the 3rd HuggingFace Profile](https://huggingface.co/shukdev3))
+- **HuggingFace Profile**: [Click here to access the HuggingFace Profile](https://huggingface.co/shukdevdatta123)
+- **HuggingFace Profile 2**: [Click here to access the 2nd HuggingFace Profile](https://huggingface.co/shukdevdattaEX)
+- **HuggingFace Profile 3**: [Click here to access the 3rd HuggingFace Profile](https://huggingface.co/shukdev3)
 
 ---
 
