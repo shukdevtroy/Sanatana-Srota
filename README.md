@@ -33,8 +33,8 @@ Vedic scriptures · AI Guru · Live Panchang · Divine Family Tree · Mandala Cr
 - [AI Guru — Full Setup Guide](#-ai-guru--full-setup-guide)
   - [Getting an API Key](#getting-an-api-key)
   - [Choosing a Model](#choosing-a-model)
-  - [Web Search](#web-search)
-  - [Sacred Texts RAG](#sacred-texts-rag)
+  - [How the AI Actually Works — The 3-Layer System](#how-the-ai-actually-works--the-3-layer-system)
+  - [Sacred Texts RAG — Indexing Guide](#sacred-texts-rag--indexing-guide)
 - [Adding or Replacing PDF Books](#-adding-or-replacing-pdf-books)
 - [Customisation Tips](#-customisation-tips)
 - [Frequently Asked Questions](#-frequently-asked-questions)
@@ -349,44 +349,105 @@ Use the **Model** dropdown in the chat header to switch models at any time:
 
 ---
 
-### Web Search
+### How the AI Actually Works — The 3-Layer System
 
-The **🔍 Web Search** toggle (on by default) allows the AI to fetch current information from the web before answering. This is useful for questions about recent events, living teachers, or anything that may not be in the model's training data.
-
-Toggle it **off** if you want the AI to rely purely on its training knowledge and your indexed PDFs (faster responses).
+Every time you send a message, the code builds a packet of information and sends it to the AI. This packet is assembled in **3 layers**, and all three providers (Groq, OpenRouter, HuggingFace) receive the exact same packet.
 
 ---
 
-### Sacred Texts RAG
+**Layer 1 — System Prompt (always present, no toggle)**
 
-RAG (Retrieval-Augmented Generation) makes the AI answer questions by **reading the actual scripture PDFs** rather than relying on its training data alone. This gives verse-accurate, source-cited responses.
+This is the permanent base personality of Dharma Guru. It is always included regardless of any settings. It tells the model who it is, how to speak, what it knows, and how to answer — the full Sanatani AI persona, tone, and rules. No toggle can remove this layer.
+
+---
+
+**Layer 2 — Web Search (🔍 toggle)**
+
+When **Web Search is ON** (default):
+- Before calling the AI, the code searches DuckDuckGo for your question + *"Hinduism Sanatan Dharma"*
+- It pulls back a short abstract and up to 4 source links
+- This is appended to the system prompt as `[Web Search Context]: ...`
+- The AI now has current/external information to draw from alongside its training knowledge
+
+When **Web Search is OFF**:
+- This step is skipped entirely — no web lookup happens
+- Responses are faster since there's no network call before the AI call
+- The AI answers purely from its training knowledge (and scripture passages if RAG is on)
+
+---
+
+**Layer 3 — Sacred Texts RAG (📚 toggle + indexed PDFs)**
+
+When **RAG is ON and you have PDFs indexed**:
+- The code searches your indexed scripture chunks using TF-IDF similarity matching against your question
+- It picks the **4 most relevant passages** from all your indexed books
+- Those passages are appended to the system prompt as `[Sacred Text Passages — use these as primary reference, cite the source]: ...`
+- The AI now has the actual Vedic text in front of it and can quote verse and chapter directly
+
+When **RAG is OFF or no PDFs are indexed**:
+- This step is skipped
+- No scripture passages are added to the prompt
+
+---
+
+**What gets sent to the AI (final assembled packet)**
+
+```
+┌─────────────────────────────────────────────────┐
+│  SYSTEM MESSAGE                                 │
+│  = Dharma Guru persona (always)                 │
+│  + [Web Search Context] (if search ON)          │
+│  + [Sacred Text Passages] (if RAG ON + indexed) │
+├─────────────────────────────────────────────────┤
+│  Last 10 messages of your conversation          │
+├─────────────────────────────────────────────────┤
+│  Your current question                          │
+└─────────────────────────────────────────────────┘
+```
+
+This identical packet is sent to whichever provider you have selected — Groq and OpenRouter receive it as a native `messages` array with a proper `system` role, while HuggingFace receives it formatted as an `[INST]...[/INST]` instruction string (which is the format those models understand).
+
+---
+
+**The 4 possible combinations**
+
+| Web Search | RAG | What the AI knows | Best used when |
+|---|---|---|---|
+| ✅ ON | ✅ ON | Persona + live web + actual scripture text | Deep, cited, up-to-date answers |
+| ✅ ON | ❌ OFF | Persona + live web only | General questions, current events |
+| ❌ OFF | ✅ ON | Persona + scripture passages only | Pure Vedic answers from the texts |
+| ❌ OFF | ❌ OFF | Persona + model training only | Fastest responses, no extra context |
+
+---
+
+### Sacred Texts RAG — Indexing Guide
+
+RAG (Retrieval-Augmented Generation) is what allows the AI to answer by **reading the actual scripture PDFs** rather than relying on training data alone. You need to index a PDF at least once per browser session before RAG can use it.
 
 **Enabling RAG:**
 1. Toggle **📚 Sacred Texts RAG** ON in the chat model bar. The RAG status bar appears below.
 2. Click **🧠 Index for AI** on any book card, or click **＋ Index PDF** in the RAG status bar.
 
-**How indexing works on GitHub Pages (automatic):**
-- The PDF is fetched directly from the repo by relative path.
-- PDF.js extracts all text and splits it into ~400-word chunks with 80-word overlaps.
-- TF-IDF vectors are computed for each chunk and stored in memory.
-- A progress bar shows extraction progress page-by-page.
+**How indexing works on GitHub Pages (fully automatic):**
+- The PDF is fetched directly from the repo by relative path
+- PDF.js extracts all text page by page and splits it into ~400-word chunks with 80-word overlaps
+- TF-IDF vectors are computed for every chunk and stored in browser memory
+- A progress bar shows extraction progress
 - On completion: *"📚 'Bhagavad Gita' indexed — 842 chunks ready"*
 
-**How indexing works locally (file picker):**
-- Because browsers block local file reads on `file://`, a file picker opens.
-- Navigate to your `SANATANS` folder and select the PDF.
-- The title is pre-set automatically — just pick the file and it indexes under the correct name.
+**How indexing works locally on your PC (one extra click):**
+- Browsers block local file reads on `file://` for security — this cannot be bypassed
+- A file picker opens automatically with a prompt saying which file to select
+- Navigate to your `SANATANS` folder, click the PDF, and it indexes under the correct book title
+- This is a one-time click per session — once indexed it works for the rest of the session
 
 **Indexing multiple books:**
-You can index as many books as you want. Each indexed book appears as a pill tag in the RAG status bar. Click **✕** on any pill to remove that book from the index.
+Index as many books as you want. Each appears as a pill tag in the RAG status bar. Click **✕** on any pill to remove it from the index.
 
 **Upload Your Own PDF:**
-In the RAG modal (＋ Index PDF), the **Upload Your Own PDF** section lets you index any PDF not in the default library — a commentary, a personal scripture, a translation, etc. The title will be taken from the filename.
+In the RAG modal (**＋ Index PDF**), the **Upload Your Own PDF** section lets you index any PDF not in the default library — a commentary, personal scripture, translation, etc. The title is taken from the filename.
 
-**What happens when you chat with RAG active:**
-The AI retrieves the 4 most relevant chunks from all indexed texts, prepends them to the prompt as *"Sacred Text Passages — use these as primary reference, cite the source"*, and the model answers citing chapter and verse where possible.
-
-> **Note:** Indexed text lives in browser memory only. It is cleared when you close or refresh the tab. You will need to re-index after each session.
+> **Note:** The RAG index lives in browser memory only and is cleared when you close or refresh the tab. You will need to re-index at the start of each session.
 
 ---
 
