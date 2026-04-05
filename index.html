@@ -4501,19 +4501,39 @@ async function callOpenRouter(messages, modelName) {
   if (!res.ok) throw new Error(data.error?.message || 'OpenRouter error');
   return data.choices[0].message.content;
 }
-async function callHuggingFace(userMsg, modelName) {
+async function callHuggingFace(messages, modelName) {
   const key = localStorage.getItem('sd_hf_key') || keys.hf;
   if (!key) throw new Error('HuggingFace token not set');
-  const prompt = `<s>[INST] ${SYSTEM_PROMPT}\n\nUser: ${userMsg} [/INST]`;
+  // Build a single prompt string from the messages array.
+  // Most HF instruction models (Mixtral, Zephyr) use the [INST] format.
+  // We prepend the system prompt, then interleave user/assistant turns.
+  let prompt = '';
+  messages.forEach((m, i) => {
+    if (m.role === 'system') {
+      // Inject system content into the first user turn
+      prompt += `<s>[INST] ${m.content}\n\n`;
+    } else if (m.role === 'user') {
+      // If system was already opened, continue; otherwise open a new turn
+      if (i === 0 || messages[i - 1].role !== 'system') prompt += `<s>[INST] `;
+      prompt += `${m.content} [/INST]`;
+    } else if (m.role === 'assistant') {
+      prompt += ` ${m.content} </s>`;
+    }
+  });
+  // If the last message was a user turn opened after a system block, close it
+  if (messages.length >= 2 && messages[messages.length - 2].role === 'system') {
+    // already handled above — the user content closes [/INST]
+  }
   const res = await fetch(`https://api-inference.huggingface.co/models/${modelName}`, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ inputs: prompt, parameters: { max_new_tokens: 1200, temperature: 0.7 } })
+    body: JSON.stringify({ inputs: prompt, parameters: { max_new_tokens: 1200, temperature: 0.7, return_full_text: false } })
   });
   const data = await res.json();
   if (!res.ok || data.error) throw new Error(data.error || 'HuggingFace error');
   const raw = Array.isArray(data) ? data[0].generated_text : data.generated_text;
-  return raw.split('[/INST]').pop().trim();
+  // return_full_text:false means the response is only the new tokens, but trim just in case
+  return raw.replace(/<\/s>$/, '').trim();
 }
 async function sendMessage() {
   const input = document.getElementById('chat-input');
@@ -4559,7 +4579,7 @@ async function sendMessage() {
     } else if (provider === 'or') {
       reply = await callOpenRouter(msgs, modelName);
     } else if (provider === 'hf') {
-      reply = await callHuggingFace(userMsg + searchContext + ragContext, modelName);
+      reply = await callHuggingFace(msgs, modelName);
     }
     chatHistory.push({ role: 'assistant', content: reply });
     removeTyping();
