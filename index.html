@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════
@@ -163,6 +165,325 @@ body {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-dark); }
 ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 3px; }
+
+/* ═══════════════════════════════════════════════════════
+   DAILY SHLOKA SECTION
+═══════════════════════════════════════════════════════ */
+.shloka-outer { max-width: 860px; margin: 0 auto; }
+.shloka-card {
+  background: linear-gradient(145deg, var(--bg-panel), var(--bg-card));
+  border: 1px solid var(--border-gold);
+  border-radius: 10px;
+  padding: 44px 48px 36px;
+  position: relative;
+  overflow: hidden;
+}
+.shloka-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--saffron), var(--gold-bright), var(--saffron));
+}
+.shloka-day-badge {
+  display: inline-block;
+  font-family: var(--font-heading);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--saffron-light);
+  background: rgba(255,107,0,0.12);
+  border: 1px solid rgba(255,107,0,0.3);
+  border-radius: 20px;
+  padding: 4px 14px;
+  margin-bottom: 10px;
+}
+.shloka-source-tag {
+  font-family: var(--font-heading);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 22px;
+}
+.shloka-sanskrit {
+  font-family: var(--font-display);
+  font-size: clamp(17px, 2.5vw, 22px);
+  color: var(--gold-pale);
+  line-height: 1.9;
+  margin-bottom: 14px;
+  text-align: center;
+  text-shadow: 0 0 20px rgba(212,160,23,0.25);
+}
+.shloka-transliteration {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-style: italic;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 18px;
+  line-height: 1.7;
+}
+.shloka-translation {
+  font-family: var(--font-body);
+  font-size: 17px;
+  color: var(--text-primary);
+  text-align: center;
+  line-height: 1.8;
+  padding: 16px 0;
+  border-top: 1px solid var(--border-gold);
+  border-bottom: 1px solid var(--border-gold);
+  margin-bottom: 28px;
+}
+.shloka-ai-panel {
+  background: rgba(255,107,0,0.04);
+  border: 1px solid rgba(255,107,0,0.2);
+  border-radius: 7px;
+  overflow: hidden;
+}
+.shloka-ai-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  background: rgba(255,107,0,0.08);
+  border-bottom: 1px solid rgba(255,107,0,0.15);
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--saffron-light);
+}
+.shloka-ai-badge {
+  margin-left: auto;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  background: rgba(255,107,0,0.2);
+  border: 1px solid rgba(255,107,0,0.3);
+  border-radius: 3px;
+  padding: 2px 8px;
+  color: var(--saffron);
+}
+.shloka-ai-body { padding: 18px 20px 0; min-height: 60px; }
+.shloka-ai-placeholder { color: var(--text-muted); font-style: italic; font-size: 15px; padding-bottom: 4px; }
+.shloka-ai-content { color: var(--text-primary); font-size: 16px; line-height: 1.8; padding-bottom: 4px; }
+.shloka-ai-content h4 { font-family: var(--font-heading); color: var(--gold); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; margin: 14px 0 5px; }
+.shloka-ai-loading {
+  display: flex; align-items: center; gap: 12px;
+  color: var(--saffron-light); font-family: var(--font-heading);
+  font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase;
+  padding-bottom: 4px;
+}
+.shloka-loader-ring {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: var(--saffron);
+  border-right-color: var(--gold);
+  animation: spinOuter 0.8s linear infinite;
+  flex-shrink: 0;
+}
+.shloka-explain-btn {
+  display: block; width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, rgba(255,107,0,0.15), rgba(212,160,23,0.15));
+  border: none; border-top: 1px solid rgba(255,107,0,0.2);
+  color: var(--saffron-light);
+  font-family: var(--font-heading); font-size: 12px;
+  font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.3s;
+}
+.shloka-explain-btn:hover { background: linear-gradient(135deg, rgba(255,107,0,0.3), rgba(212,160,23,0.2)); color: var(--gold-bright); }
+.shloka-explain-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.shloka-nav {
+  display: flex; align-items: center; justify-content: center; gap: 20px;
+  margin-top: 20px;
+}
+.shloka-nav-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(212,160,23,0.1); border: 1px solid var(--border-gold);
+  color: var(--gold); font-size: 22px; cursor: pointer;
+  transition: all 0.3s; display: flex; align-items: center; justify-content: center;
+}
+.shloka-nav-btn:hover { background: rgba(212,160,23,0.25); border-color: var(--gold); }
+
+/* ═══════════════════════════════════════════════════════
+   PILGRIMAGE MAP SECTION
+═══════════════════════════════════════════════════════ */
+.map-outer {
+  max-width: 1200px; margin: 0 auto;
+  position: relative;
+  background: linear-gradient(145deg, var(--bg-panel), var(--bg-card));
+  border: 1px solid var(--border-gold);
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 20px;
+}
+.map-legend {
+  display: flex; flex-wrap: wrap; gap: 14px 24px;
+  margin-bottom: 16px;
+  padding: 0 8px;
+}
+.map-legend-item {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-heading); font-size: 11px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+#india-map-container {
+  width: 100%; height: 580px;
+  border-radius: 7px;
+  overflow: hidden;
+  border: 1px solid var(--border-gold);
+}
+#india-map-container .leaflet-container { background: #0A0400 !important; }
+.site-info-panel {
+  position: absolute; top: 70px; right: 30px;
+  width: 280px;
+  background: linear-gradient(145deg, var(--bg-panel), var(--bg-card));
+  border: 1px solid var(--border-gold);
+  border-radius: 8px;
+  padding: 20px;
+  z-index: 1000;
+  opacity: 0; visibility: hidden; transform: translateX(20px);
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+}
+.site-info-panel.open { opacity: 1; visibility: visible; transform: translateX(0); }
+.site-info-close {
+  position: absolute; top: 10px; right: 10px;
+  background: none; border: none;
+  color: var(--text-muted); font-size: 13px; cursor: pointer;
+}
+.site-info-close:hover { color: var(--saffron); }
+.site-info-icon { font-size: 36px; margin-bottom: 8px; }
+.site-info-name {
+  font-family: var(--font-display); font-size: 16px; color: var(--gold-bright);
+  margin-bottom: 4px; line-height: 1.3;
+}
+.site-info-type {
+  font-family: var(--font-heading); font-size: 10px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--saffron); margin-bottom: 4px;
+}
+.site-info-state {
+  font-family: var(--font-heading); font-size: 10px; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;
+}
+.site-info-desc {
+  font-family: var(--font-body); font-size: 14px; color: var(--text-secondary);
+  line-height: 1.6;
+  border-top: 1px solid var(--border-gold); padding-top: 10px; margin: 0;
+}
+@media (max-width: 700px) {
+  .site-info-panel { position: static; opacity: 1; visibility: visible; transform: none; width: 100%; margin-top: 12px; }
+  .site-info-panel:not(.open) { display: none; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   HISTORY TIMELINE SECTION
+═══════════════════════════════════════════════════════ */
+.timeline-scroll-hint {
+  text-align: center;
+  font-family: var(--font-heading); font-size: 10px;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--text-muted); margin-bottom: 20px;
+}
+.timeline-outer {
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 40px 60px 20px;
+  cursor: grab;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.timeline-outer::-webkit-scrollbar { display: none; }
+.timeline-outer:active { cursor: grabbing; }
+.timeline-track {
+  display: flex;
+  align-items: center;
+  position: relative;
+  min-width: max-content;
+  padding: 355px 0;
+}
+/* Central axis line */
+.timeline-track::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--saffron) 5%, var(--gold) 50%, var(--saffron) 95%, transparent);
+  transform: translateY(-50%);
+}
+.tl-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 180px;
+  flex-shrink: 0;
+}
+.tl-item.above .tl-card { bottom: 100%; margin-bottom: 20px; top: auto; }
+.tl-item.below .tl-card { top: 100%; margin-top: 20px; bottom: auto; }
+.tl-dot {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid var(--gold);
+  background: var(--bg-dark);
+  box-shadow: 0 0 12px rgba(212,160,23,0.6);
+  z-index: 2; flex-shrink: 0;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.tl-item:hover .tl-dot {
+  transform: scale(1.6);
+  box-shadow: 0 0 20px rgba(255,107,0,0.8);
+}
+.tl-connector {
+  width: 2px;
+  background: linear-gradient(180deg, var(--gold), transparent);
+}
+.tl-item.above .tl-connector { height: 40px; background: linear-gradient(0deg, var(--gold), transparent); }
+.tl-item.below .tl-connector { height: 40px; background: linear-gradient(180deg, var(--gold), transparent); }
+.tl-card {
+  position: absolute;
+  width: 160px;
+  background: linear-gradient(145deg, var(--bg-panel), var(--bg-card));
+  border: 1px solid var(--border-gold);
+  border-radius: 6px;
+  padding: 12px 14px;
+  transition: all 0.3s;
+}
+.tl-item:hover .tl-card {
+  border-color: var(--saffron);
+  box-shadow: 0 4px 20px rgba(255,107,0,0.2);
+  z-index: 5;
+}
+.tl-year {
+  font-family: var(--font-heading); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.15em; color: var(--saffron-light);
+  margin-bottom: 4px;
+}
+.tl-era {
+  font-family: var(--font-heading); font-size: 9px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px;
+}
+.tl-title {
+  font-family: var(--font-display); font-size: 12px; color: var(--gold-pale);
+  line-height: 1.3; margin-bottom: 5px;
+}
+.tl-text {
+  font-family: var(--font-body); font-size: 12px; color: var(--text-secondary);
+  line-height: 1.5;
+}
+.tl-icon { font-size: 18px; margin-bottom: 4px; }
+.timeline-scroll-bar {
+  max-width: 600px; margin: 10px auto 0;
+  height: 3px; background: rgba(212,160,23,0.12);
+  border-radius: 99px; position: relative; cursor: pointer;
+}
+.timeline-scroll-thumb {
+  height: 100%; width: 30%; background: linear-gradient(90deg, var(--saffron), var(--gold));
+  border-radius: 99px; transition: width 0.1s;
+  box-shadow: 0 0 8px rgba(255,107,0,0.5);
+}
 /* ═══════════════════════════════════════════════════════
    CANVAS BACKGROUND
 ═══════════════════════════════════════════════════════ */
@@ -200,7 +521,7 @@ nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 40px;
+  padding: 0 24px;
   height: 72px;
   background: linear-gradient(180deg, rgba(10,4,0,0.98) 0%, rgba(10,4,0,0.85) 100%);
   border-bottom: 1px solid var(--border-gold);
@@ -233,20 +554,21 @@ nav {
 }
 .nav-links {
   display: flex;
-  gap: 36px;
+  gap: 18px;
   list-style: none;
 }
 .nav-links a {
   font-family: var(--font-heading);
-  font-size: 11px;
+  font-size: 9.5px;
   font-weight: 600;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-secondary);
   text-decoration: none;
   transition: color var(--transition);
   position: relative;
   padding-bottom: 4px;
+  white-space: nowrap;
 }
 .nav-links a::after {
   content: '';
@@ -2941,9 +3263,11 @@ footer {
     <li><a href="#philosophy">Philosophy</a></li>
     <li><a href="#calendar-section">Calendar</a></li>
     <li><a href="#family-tree">Family Tree</a></li>
-    <li><a href="#mandala-tool">Mandala</a></li>
     <li><a href="#misconceptions">Myths vs Facts</a></li>
     <li><a href="#podcasts">Podcasts</a></li>
+    <li><a href="#shloka-section">Daily Shloka</a></li>
+    <li><a href="#pilgrimage-map">Sacred Sites</a></li>
+    <li><a href="#history-timeline">Timeline</a></li>
     <li><a href="#chatbot-section" class="nav-chat-btn">AI Guru</a></li>
   </ul>
 </nav>
@@ -3311,68 +3635,6 @@ footer {
       <div class="ft-info-body" id="ft-info-body">The supreme deity of destruction and regeneration.</div>
       <div class="ft-info-tags" id="ft-info-tags"></div>
     </div>
-  </div>
-</section>
-
-<div class="section-sep"></div>
-
-<!-- ═══════════════ MANDALA COLORING TOOL ═══════════════ -->
-<section id="mandala-tool">
-  <div class="section-header reveal">
-    <span class="section-label">Sacred Art</span>
-    <h2 class="section-title">Mandala Coloring</h2>
-    <p style="color:var(--text-muted);max-width:580px;margin:0 auto;font-size:16px;">
-      Choose a sacred mandala, pick your colors, and paint a meditative masterpiece. Download when complete.
-    </p>
-    <div class="section-underline">
-      <span class="underline-line"></span>
-      <span class="underline-dot"></span>
-      <span class="underline-line right"></span>
-    </div>
-  </div>
-
-  <div class="mandala-tool-wrapper reveal">
-    <!-- Controls top bar -->
-    <div class="mc-controls">
-      <div class="mc-control-group">
-        <label class="mc-label">Mandala</label>
-        <div class="mc-mandala-btns">
-          <button class="mc-mtype active" data-type="lotus" onclick="setMandalaType('lotus',this)">🌸 Lotus</button>
-          <button class="mc-mtype" data-type="chakra" onclick="setMandalaType('chakra',this)">☸ Chakra</button>
-          <button class="mc-mtype" data-type="sri" onclick="setMandalaType('sri',this)">🔺 Sri Yantra</button>
-          <button class="mc-mtype" data-type="sun" onclick="setMandalaType('sun',this)">🌞 Solar</button>
-        </div>
-      </div>
-      <div class="mc-control-group">
-        <label class="mc-label">Brush Size</label>
-        <input type="range" id="mc-brush-size" min="6" max="60" value="22" class="mc-range" oninput="updateBrushSize(this.value)">
-        <span class="mc-range-val" id="mc-size-val">22</span>
-      </div>
-      <div class="mc-control-group">
-        <label class="mc-label">Color</label>
-        <div class="mc-palette" id="mc-palette"></div>
-        <input type="color" id="mc-custom-color" value="#FF6B00" class="mc-color-input" oninput="setCustomColor(this.value)" title="Custom color">
-      </div>
-      <div class="mc-control-group">
-        <label class="mc-label">Actions</label>
-        <div class="mc-action-btns">
-          <button class="mc-action-btn" onclick="undoMandala()" title="Undo">↩ Undo</button>
-          <button class="mc-action-btn" onclick="clearMandala()" title="Clear">🗑 Clear</button>
-          <button class="mc-action-btn mc-download-btn" onclick="downloadMandala()" title="Download">⬇ Save</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Canvas area -->
-    <div class="mc-canvas-area">
-      <canvas id="mandala-bg-canvas" class="mc-bg-canvas"></canvas>
-      <canvas id="mandala-color-canvas" class="mc-color-canvas"
-        onmousedown="mcStartDraw(event)" onmousemove="mcDraw(event)" onmouseup="mcStopDraw()"
-        onmouseleave="mcStopDraw()"
-        ontouchstart="mcTouchStart(event)" ontouchmove="mcTouchMove(event)" ontouchend="mcStopDraw()">
-      </canvas>
-    </div>
-    <p class="mc-hint">🖱 Click & drag to paint • Colors respect the mandala's symmetry</p>
   </div>
 </section>
 
@@ -3787,6 +4049,118 @@ footer {
 
   </div><!-- /#ptab-western -->
 
+</section>
+
+
+<!-- ═══════════════ DAILY SHLOKA ═══════════════ -->
+<div class="section-sep"></div>
+<section id="shloka-section">
+  <div class="section-header reveal">
+    <span class="section-label">🤖 AI & Learning</span>
+    <h2 class="section-title">Daily Shloka</h2>
+    <p style="color:var(--text-muted);max-width:600px;margin:0 auto;font-size:16px;">
+      A sacred verse from the ancient scriptures — uniquely selected each day by AI, with deep Groq-powered explanation of meaning, context &amp; significance.
+    </p>
+    <div class="section-underline">
+      <span class="underline-line"></span><span class="underline-dot"></span><span class="underline-line right"></span>
+    </div>
+  </div>
+
+  <div class="shloka-outer reveal">
+    <div class="shloka-card" id="shloka-card">
+      <div class="shloka-day-badge" id="shloka-day-badge">Today's Verse</div>
+      <div class="shloka-source-tag" id="shloka-source-tag"></div>
+      <div class="shloka-sanskrit" id="shloka-sanskrit"></div>
+      <div class="shloka-transliteration" id="shloka-transliteration"></div>
+      <div class="shloka-translation" id="shloka-translation"></div>
+
+      <div class="shloka-ai-panel" id="shloka-ai-panel">
+        <div class="shloka-ai-header">
+          <span class="shloka-ai-icon">🤖</span>
+          <span>Groq AI Explanation</span>
+          <span class="shloka-ai-badge">Powered by Groq</span>
+        </div>
+        <div class="shloka-ai-body" id="shloka-ai-body">
+          <div id="shloka-ai-placeholder" class="shloka-ai-placeholder">
+            <p>Receive a deep breakdown of this verse — its meaning, philosophical context, and timeless significance.</p>
+          </div>
+          <div id="shloka-ai-content" class="shloka-ai-content" style="display:none;"></div>
+          <div id="shloka-ai-loading" class="shloka-ai-loading" style="display:none;">
+            <div class="shloka-loader-ring"></div>
+            <span>Consulting the scriptures<span class="loader-dots"></span></span>
+          </div>
+        </div>
+        <button class="shloka-explain-btn" id="shloka-explain-btn" onclick="explainShloka()">
+          ✨ Reveal AI Explanation
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation arrows -->
+    <div class="shloka-nav">
+      <button class="shloka-nav-btn" onclick="changeShloka(-1)" title="Previous verse">‹</button>
+      <button class="shloka-nav-btn" onclick="changeShloka(1)" title="Next verse">›</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ PILGRIMAGE MAP ═══════════════ -->
+<div class="section-sep"></div>
+<section id="pilgrimage-map">
+  <div class="section-header reveal">
+    <span class="section-label">🗺️ Exploration</span>
+    <h2 class="section-title">Sacred Sites & Pilgrimage Map</h2>
+    <p style="color:var(--text-muted);max-width:600px;margin:0 auto;font-size:16px;">
+      Explore the holiest sites of Sanatan Dharma — across India and the entire world. Click any marker for details.
+    </p>
+    <div class="section-underline">
+      <span class="underline-line"></span><span class="underline-dot"></span><span class="underline-line right"></span>
+    </div>
+  </div>
+
+  <div class="map-outer reveal">
+    <div class="map-legend">
+      <div class="map-legend-item"><span class="legend-dot" style="background:#FF6B00;box-shadow:0 0 8px #FF6B00;"></span> Char Dham</div>
+      <div class="map-legend-item"><span class="legend-dot" style="background:#FFD700;box-shadow:0 0 8px #FFD700;"></span> Jyotirlinga</div>
+      <div class="map-legend-item"><span class="legend-dot" style="background:#C0392B;box-shadow:0 0 8px #C0392B;"></span> Shakti Peetha</div>
+      <div class="map-legend-item"><span class="legend-dot" style="background:#7B68EE;box-shadow:0 0 8px #7B68EE;"></span> Global Sacred</div>
+      <div class="map-legend-item"><span class="legend-dot" style="background:#6B8E23;box-shadow:0 0 8px #6B8E23;"></span> Other Sacred</div>
+    </div>
+    <div id="india-map-container"></div>
+    <div id="site-info-panel" class="site-info-panel">
+      <button class="site-info-close" onclick="closeSitePanel()">✕</button>
+      <div class="site-info-icon" id="site-icon"></div>
+      <div class="site-info-name" id="site-name"></div>
+      <div class="site-info-type" id="site-type"></div>
+      <div class="site-info-state" id="site-state"></div>
+      <p class="site-info-desc" id="site-desc"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ HISTORY TIMELINE ═══════════════ -->
+<div class="section-sep"></div>
+<section id="history-timeline">
+  <div class="section-header reveal">
+    <span class="section-label">🗺️ Exploration</span>
+    <h2 class="section-title">Timeline of Hindu History</h2>
+    <p style="color:var(--text-muted);max-width:600px;margin:0 auto;font-size:16px;">
+      From the cosmic dawn of the Vedic Age to the present — key epochs, sages, and events that shaped Sanatan Dharma.
+    </p>
+    <div class="section-underline">
+      <span class="underline-line"></span><span class="underline-dot"></span><span class="underline-line right"></span>
+    </div>
+  </div>
+
+  <div class="timeline-scroll-hint">← Scroll to explore →</div>
+  <div class="timeline-outer" id="timeline-outer">
+    <div class="timeline-track" id="timeline-track">
+      <!-- injected by JS -->
+    </div>
+  </div>
+  <div class="timeline-scroll-bar">
+    <div class="timeline-scroll-thumb" id="timeline-thumb"></div>
+  </div>
 </section>
 
 <div class="section-sep"></div>
@@ -6582,6 +6956,428 @@ document.querySelectorAll('.deity-card').forEach(function(card) {
 });
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeDeityPopup();
+});
+</script>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   DAILY SHLOKA — GROQ AI (fully dynamic, day-based)
+═══════════════════════════════════════════════════════ */
+
+// Seed pool — used as fallback & to derive the daily Groq prompt variety
+const SHLOKA_SEEDS = [
+  'Bhagavad Gita 2.47','Bhagavad Gita 9.22','Rigveda 1.89.1','Bhagavad Gita 4.7',
+  'Ishavasya Upanishad 1','Bhagavad Gita 6.5','Chandogya Upanishad 6.8.7',
+  'Mandukya Upanishad 2','Bhagavad Gita 13.28','Bhagavad Gita 18.66',
+  'Taittiriya Upanishad 2.1','Mundaka Upanishad 3.2.9','Bhagavad Gita 2.20',
+  'Yoga Sutras 1.2','Maha Upanishad 6.71','Bhagavad Gita 3.27',
+  'Bhagavad Gita 10.20','Isha Upanishad 6','Kaivalya Upanishad 1',
+  'Kena Upanishad 1.3','Bhagavad Gita 9.26'
+];
+
+const SHLOKA_TOPICS = [
+  'Karma and selfless action','Devotion and surrender to the Divine',
+  'The eternal nature of the soul (Atman)','Non-attachment and inner peace',
+  'Knowledge and wisdom (Jnana)','The nature of Brahman, the Supreme Reality',
+  'Dharma and righteous living','The unity of all beings',
+  'Meditation and the path of Yoga','Compassion and love (Bhakti)',
+  'The power of truth (Satya)','Liberation and Moksha',
+  'Time, creation, and cosmic cycles','The mind as friend and enemy',
+  'Service and humility','Divine grace and surrender',
+  'The path beyond sorrow','Equanimity in all circumstances',
+  'The sacred in the ordinary','Cosmic consciousness and Oneness',
+  'Faith and perseverance on the spiritual path'
+];
+
+let currentShlokaIndex = 0;
+let shlokaExplained = {};
+let currentShlokaData = null; // holds the dynamically fetched shloka
+let dailyShlokaCache = {}; // keyed by date string
+
+function getDayKey() {
+  var now = new Date();
+  return now.getFullYear() + '-' + (now.getMonth()+1) + '-' + now.getDate();
+}
+
+function getDayOfYear() {
+  var now = new Date();
+  var start = new Date(now.getFullYear(), 0, 0);
+  return Math.floor((now - start) / 86400000);
+}
+
+async function fetchGroqDailyShloka(dayKey) {
+  // Check localStorage cache first
+  var cached = null;
+  try { cached = JSON.parse(localStorage.getItem('sd_shloka_' + dayKey)); } catch(e) {}
+  if (cached && cached.sanskrit) return cached;
+
+  var dayOfYear = getDayOfYear();
+  var topicIdx = dayOfYear % SHLOKA_TOPICS.length;
+  var topic = SHLOKA_TOPICS[topicIdx];
+  var seedRef = SHLOKA_SEEDS[dayOfYear % SHLOKA_SEEDS.length];
+
+  var groqKey = localStorage.getItem('sd_groq_key') || '';
+  if (!groqKey) return null;
+
+  var prompt = `You are a learned Vedic scholar. Today's spiritual theme is: "${topic}".
+
+Please provide ONE authentic Sanskrit shloka related to this theme from the Vedas, Upanishads, Bhagavad Gita, or Puranas. Do NOT use ${seedRef} — choose a different one.
+
+Respond ONLY with a valid JSON object in this exact format (no markdown, no extra text):
+{
+  "source": "Scripture Name Chapter.Verse",
+  "sanskrit": "Sanskrit text in Devanagari",
+  "transliteration": "Roman transliteration with diacritics",
+  "translation": "English translation in quotes"
+}`;
+
+  try {
+    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + groqKey
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        max_tokens: 600,
+        temperature: 0.7,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    var data = await res.json();
+    var text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    if (!text) return null;
+    // Strip markdown code fences if present
+    text = text.replace(/```json|```/g, '').trim();
+    var parsed = JSON.parse(text);
+    if (parsed.sanskrit) {
+      localStorage.setItem('sd_shloka_' + dayKey, JSON.stringify(parsed));
+      return parsed;
+    }
+    return null;
+  } catch(e) {
+    return null;
+  }
+}
+
+// Fallback static shlokas
+const SHLOKAS = [
+  { source:'Bhagavad Gita 2.47', sanskrit:'कर्मण्येवाधिकारस्ते मा फलेषु कदाचन ।\nमा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि ॥', transliteration:'Karmaṇyevādhikāraste mā phaleṣu kadācana,\nMā karmaphalaheturbhūr mā te saṅgo\'stvakarmaṇi.', translation:'"You have a right to perform your duties, but you are not entitled to the fruits of your actions. Never consider yourself the cause of the results, nor be attached to inaction."' },
+  { source:'Bhagavad Gita 9.22', sanskrit:'अनन्याश्चिन्तयन्तो मां ये जनाः पर्युपासते ।\nतेषां नित्याभियुक्तानां योगक्षेमं वहाम्यहम् ॥', transliteration:'Ananyāśhcintayanto māṃ ye janāḥ paryupāsate,\nTeṣhāṃ nityābhiyuktānāṃ yoga-kṣhemaṃ vahāmyaham.', translation:'"For those who worship Me with devotion, meditating on My transcendental form, I carry what they lack and preserve what they have."' },
+  { source:'Rigveda 1.89.1', sanskrit:'आ नो भद्राः क्रतवो यन्तु विश्वतः ।', transliteration:'Ā no bhadrāḥ kratavo yantu viśvataḥ.', translation:'"Let noble thoughts come to us from every direction."' },
+  { source:'Bhagavad Gita 4.7', sanskrit:'यदा यदा हि धर्मस्य ग्लानिर्भवति भारत ।\nअभ्युत्थानमधर्मस्य तदात्मानं सृजाम्यहम् ॥', transliteration:'Yadā yadā hi dharmasya glānir bhavati Bhārata,\nAbhyutthānam adharmasya tadātmānaṃ sṛjāmyaham.', translation:'"Whenever there is a decline in righteousness, O Arjuna, and a rise of unrighteousness — at that time I manifest Myself on earth."' },
+  { source:'Chandogya Upanishad 6.8.7', sanskrit:'तत्त्वमसि ।', transliteration:'Tat tvam asi.', translation:'"Thou art That." — The individual soul (Atman) is identical with the universal consciousness (Brahman).' },
+  { source:'Mundaka Upanishad 3.2.9', sanskrit:'सत्यमेव जयते नानृतम् ।', transliteration:'Satyam eva jayate nānṛtam.', translation:'"Truth alone triumphs, not falsehood." — The national motto of India.' },
+  { source:'Maha Upanishad 6.71', sanskrit:'वसुधैव कुटुम्बकम् ।', transliteration:'Vasudhaiva kuṭumbakam.', translation:'"The whole world is one family."' },
+];
+
+async function initShloka() {
+  var dayKey = getDayKey();
+  var dayOfYear = getDayOfYear();
+
+  // Set fallback shloka immediately (rotated by day)
+  currentShlokaIndex = dayOfYear % SHLOKAS.length;
+  currentShlokaData = SHLOKAS[currentShlokaIndex];
+  renderShloka();
+
+  // Try to load a Groq-generated shloka
+  showShlokaLoading(true);
+  var groqShloka = await fetchGroqDailyShloka(dayKey);
+  showShlokaLoading(false);
+  if (groqShloka) {
+    currentShlokaData = groqShloka;
+    dailyShlokaCache[dayKey] = groqShloka;
+    renderShloka();
+  }
+}
+
+function showShlokaLoading(on) {
+  var badge = document.getElementById('shloka-day-badge');
+  if (badge) badge.textContent = on ? '⏳ Fetching today\'s verse…' : 'Today\'s Verse';
+}
+
+function renderShloka() {
+  var s = currentShlokaData || SHLOKAS[currentShlokaIndex];
+  document.getElementById('shloka-source-tag').textContent = '📖 ' + s.source;
+  document.getElementById('shloka-sanskrit').textContent = s.sanskrit;
+  document.getElementById('shloka-transliteration').textContent = s.transliteration;
+  document.getElementById('shloka-translation').textContent = s.translation;
+  document.getElementById('shloka-day-badge').textContent = 'Today\'s Verse';
+
+  // Reset AI panel
+  var key = s.source + '_' + getDayKey();
+  document.getElementById('shloka-ai-placeholder').style.display = 'block';
+  document.getElementById('shloka-ai-content').style.display = 'none';
+  document.getElementById('shloka-ai-loading').style.display = 'none';
+  var btn = document.getElementById('shloka-explain-btn');
+  btn.disabled = false;
+  btn.textContent = '✨ Reveal AI Explanation';
+  if (shlokaExplained[key]) {
+    document.getElementById('shloka-ai-placeholder').style.display = 'none';
+    document.getElementById('shloka-ai-content').style.display = 'block';
+    document.getElementById('shloka-ai-content').innerHTML = shlokaExplained[key];
+    btn.textContent = '✅ Explanation Loaded';
+    btn.disabled = true;
+  }
+}
+
+function changeShloka(dir) {
+  currentShlokaIndex = (currentShlokaIndex + dir + SHLOKAS.length) % SHLOKAS.length;
+  currentShlokaData = SHLOKAS[currentShlokaIndex];
+  renderShloka();
+}
+
+async function explainShloka() {
+  var btn = document.getElementById('shloka-explain-btn');
+  var s = currentShlokaData || SHLOKAS[currentShlokaIndex];
+  var key = s.source + '_' + getDayKey();
+  btn.disabled = true;
+  document.getElementById('shloka-ai-placeholder').style.display = 'none';
+  document.getElementById('shloka-ai-loading').style.display = 'flex';
+
+  var groqKey = localStorage.getItem('sd_groq_key') || '';
+  if (!groqKey) {
+    document.getElementById('shloka-ai-loading').style.display = 'none';
+    document.getElementById('shloka-ai-placeholder').style.display = 'block';
+    document.getElementById('shloka-ai-placeholder').innerHTML = '<p style="color:var(--saffron-light)">🔑 Please enter your <strong>Groq API key</strong> in the AI Guru section below to unlock AI explanations.</p>';
+    btn.disabled = false;
+    btn.textContent = '✨ Try Again';
+    return;
+  }
+
+  try {
+    var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + groqKey
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        max_tokens: 900,
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a learned Hindu scholar and spiritual teacher. Explain Sanskrit shlokas in a reverent, accessible, and profound way. Structure your response with exactly these three labeled sections using HTML: <h4>Meaning</h4>, <h4>Context & Background</h4>, <h4>Spiritual Significance</h4>. Keep each section to 2-3 sentences. Use poetic yet clear language. Do not include any preamble or closing remarks.'
+          },
+          {
+            role: 'user',
+            content: 'Explain this shloka from ' + s.source + ':\n\nSanskrit: ' + s.sanskrit + '\nTransliteration: ' + s.transliteration + '\nTranslation: ' + s.translation
+          }
+        ]
+      })
+    });
+    var data = await res.json();
+    var html = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    if (!html) throw new Error('No content');
+    shlokaExplained[key] = html;
+    document.getElementById('shloka-ai-loading').style.display = 'none';
+    document.getElementById('shloka-ai-content').innerHTML = html;
+    document.getElementById('shloka-ai-content').style.display = 'block';
+    btn.textContent = '✅ Explanation Loaded';
+  } catch(e) {
+    document.getElementById('shloka-ai-loading').style.display = 'none';
+    document.getElementById('shloka-ai-placeholder').style.display = 'block';
+    document.getElementById('shloka-ai-placeholder').innerHTML = '<p style="color:var(--crimson-soft)">⚠️ Could not load Groq explanation. Check your API key or internet connection.</p>';
+    btn.disabled = false;
+    btn.textContent = '✨ Try Again';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   PILGRIMAGE MAP — LEAFLET
+═══════════════════════════════════════════════════════ */
+var SACRED_SITES = [
+  /* ── INDIA — Char Dham ── */
+  { name:'Badrinath', type:'Char Dham', state:'Uttarakhand, India', icon:'🏔️', lat:30.744, lng:79.493, desc:'One of the holiest shrines dedicated to Lord Vishnu, situated at 3,300 m in the Chamoli district. Part of both the Char Dham and Chota Char Dham pilgrimage circuits. The presiding deity is Badrinarayan.' },
+  { name:'Kedarnath', type:'Char Dham + Jyotirlinga', state:'Uttarakhand, India', icon:'🔱', lat:30.735, lng:79.067, desc:'A sacred Jyotirlinga shrine of Lord Shiva in the Garhwal Himalayas at 3,583 m elevation. One of the 12 Jyotirlingas and a Char Dham site. The temple is open only six months a year due to heavy snowfall.' },
+  { name:'Gangotri', type:'Char Dham', state:'Uttarakhand, India', icon:'🌊', lat:30.993, lng:78.940, desc:'The source of the sacred Ganga river, dedicated to Goddess Ganga. One of the four Char Dhams. The Ganga is said to have descended here at the request of King Bhagirath through his intense tapas.' },
+  { name:'Yamunotri', type:'Char Dham', state:'Uttarakhand, India', icon:'💧', lat:30.989, lng:78.461, desc:'Source of the Yamuna river and seat of Goddess Yamuna. The westernmost Char Dham shrine, situated at 3,293 m. Yamunotri also houses a hot water kund (spring) called Surya Kund.' },
+  /* ── INDIA — Jyotirlingas ── */
+  { name:'Somnath', type:'Jyotirlinga', state:'Gujarat, India', icon:'🌙', lat:20.888, lng:70.401, desc:'The first and foremost among the 12 Jyotirlingas, on the western coast of Gujarat. Destroyed and rebuilt multiple times, it stands as a symbol of the resilience of Sanatana Dharma. The current temple was rebuilt in 1951.' },
+  { name:'Mahakaleshwar', type:'Jyotirlinga', state:'Madhya Pradesh, India', icon:'🕉️', lat:23.182, lng:75.768, desc:'The Mahakal temple in Ujjain on the Shipra river banks. Mahakal is the lord of time — the only south-facing (Dakshinamukhi) Jyotirlinga. The Bhasma Aarti here, performed with sacred ash, is famous worldwide.' },
+  { name:'Omkareshwar', type:'Jyotirlinga', state:'Madhya Pradesh, India', icon:'ॐ', lat:22.246, lng:76.150, desc:'Located on an island in the Narmada river shaped like the sacred Om symbol. One of the 12 Jyotirlingas, uniquely situated where the Narmada and Kaveri rivers meet. The island itself is considered to be in the form of Om.' },
+  { name:'Bhimashankar', type:'Jyotirlinga', state:'Maharashtra, India', icon:'🌿', lat:19.071, lng:73.535, desc:'Located in the Sahyadri hills near Pune. The Bhima river originates near this temple. The forest around it is now a wildlife sanctuary housing the endemic Indian Giant Squirrel.' },
+  { name:'Vishwanath (Kashi)', type:'Jyotirlinga', state:'Uttar Pradesh, India', icon:'🏛️', lat:25.311, lng:83.010, desc:'The Golden Temple of Kashi (Varanasi), one of the most revered Jyotirlingas. Lord Shiva as Vishwanath is the Lord of the Universe. Varanasi is said to be the oldest continuously inhabited city on earth.' },
+  { name:'Trimbakeshwar', type:'Jyotirlinga', state:'Maharashtra, India', icon:'🔱', lat:19.940, lng:73.530, desc:'Near Nashik on the banks of the Godavari. The Godavari originates here. The lingam has three faces representing Brahma, Vishnu, and Shiva. The Kumbh Mela is held here every 12 years.' },
+  { name:'Grishneshwar', type:'Jyotirlinga', state:'Maharashtra, India', icon:'⚡', lat:20.022, lng:75.179, desc:'Last of the 12 Jyotirlingas, near the Ellora Caves in Aurangabad. The magnificent Maratha temple was renovated by Ahilyabai Holkar of Indore in the 18th century. The Ellora rock-cut temples are UNESCO World Heritage sites.' },
+  { name:'Rameshwaram', type:'Jyotirlinga + Char Dham', state:'Tamil Nadu, India', icon:'🌊', lat:9.288, lng:79.317, desc:'On Pamban Island at the southernmost tip of India. Lord Rama worshipped Shiva here before crossing to Lanka. The Ramanathaswamy Temple has the longest corridor of any Hindu temple in the world.' },
+  { name:'Vaidyanath', type:'Jyotirlinga', state:'Jharkhand, India', icon:'🔔', lat:24.492, lng:86.699, desc:'Also called Baidyanath Dham in Deoghar, this Jyotirlinga is one of the 51 Shakti Peethas too, making it doubly sacred. Millions of devotees carry holy Ganga water on foot from Sultanganj — a 108 km walk — to offer here.' },
+  { name:'Nageshwar', type:'Jyotirlinga', state:'Gujarat, India', icon:'🐍', lat:22.339, lng:69.082, desc:'Located near Dwarka on the Gujarat coast, Nageshwar is known as the lord of serpents. It is among the most westerly Jyotirlingas and the 10th in the traditional listing. A massive 25-metre statue of Lord Shiva stands nearby.' },
+  { name:'Mallikarjuna', type:'Jyotirlinga', state:'Andhra Pradesh, India', icon:'⛰️', lat:16.073, lng:78.868, desc:'Situated atop the Srisailam hill on the banks of the Krishna river, this is one of the most ancient Jyotirlingas. It is also a Shakti Peetha where Sati\'s neck is said to have fallen, making it doubly sacred.' },
+  /* ── INDIA — Shakti Peethas ── */
+  { name:'Kamakhya', type:'Shakti Peetha', state:'Assam, India', icon:'🌺', lat:26.166, lng:91.702, desc:'One of the most powerful Shakti Peethas on Nilachal Hill in Guwahati. The presiding deity is Kamakhya, goddess of desire and fertility. The annual Ambubachi Mela draws over 100,000 tantric practitioners and devotees.' },
+  { name:'Vaishno Devi', type:'Shakti Peetha', state:'Jammu & Kashmir, India', icon:'⛰️', lat:33.030, lng:74.952, desc:'In the Trikuta Mountains of Jammu, this cave shrine is one of the most-visited religious sites in India with 8+ million visitors annually. The goddess is worshipped as three pindies (natural rock formations) — Mahakali, Mahalakshmi, and Mahasaraswati.' },
+  { name:'Kalighat', type:'Shakti Peetha', state:'West Bengal, India', icon:'🔥', lat:22.520, lng:88.343, desc:'One of the 51 Shakti Peethas and one of four Adi Shakti Peethas. Located in Kolkata on the banks of the Hooghly. The city of Kolkata derives its name from this temple — Kali-Kshetra became Kalikata became Calcutta.' },
+  { name:'Hinglaj Mata', type:'Shakti Peetha', state:'Balochistan, Pakistan', icon:'🌋', lat:25.515, lng:65.512, desc:'One of the most significant Shakti Peethas, where the crown of Sati is said to have fallen. Located in the Makran coastal range, it draws hundreds of thousands of Hindu pilgrims annually despite being in Pakistan.' },
+  { name:'Jwala Devi', type:'Shakti Peetha', state:'Himachal Pradesh, India', icon:'🔥', lat:31.874, lng:76.338, desc:'The flame temple — natural blue gas flames burn perpetually from cracks in the earth, worshipped as the goddess herself. Akbar, the Mughal emperor, was so impressed he offered a gold canopy here. It is one of the most unique Shakti Peethas.' },
+  /* ── INDIA — Sacred Temples & Towns ── */
+  { name:'Tirupati Balaji', type:'Sacred Temple', state:'Andhra Pradesh, India', icon:'🙏', lat:13.683, lng:79.347, desc:'The Venkateswara Temple atop Tirumala Hill is the world\'s most visited religious site, receiving 50,000+ pilgrims daily. Dedicated to Lord Venkateswara (Vishnu), it is also the wealthiest temple in the world with a treasury worth billions.' },
+  { name:'Puri Jagannath', type:'Sacred Temple', state:'Odisha, India', icon:'🌊', lat:19.804, lng:85.818, desc:'Home to Lord Jagannath (form of Krishna/Vishnu), one of the Char Dhams. The Rath Yatra (chariot festival) draws 1+ million pilgrims annually. The kitchen of this temple is said to be the world\'s largest, cooking for 100,000 people daily.' },
+  { name:'Vrindavan', type:'Sacred Town', state:'Uttar Pradesh, India', icon:'🌺', lat:27.581, lng:77.700, desc:'The sacred town of Lord Krishna\'s childhood pastimes (leelas). Contains 5,000+ temples including Banke Bihari and Govindadevji. Every lane is said to echo with the flute of Krishna; the town is a living sacred space for Vaishnavas worldwide.' },
+  { name:'Mathura', type:'Sacred Town', state:'Uttar Pradesh, India', icon:'🎵', lat:27.492, lng:77.673, desc:'Birthplace of Lord Krishna, one of the Sapta Puri (seven sacred cities). The Krishna Janmabhoomi temple marks the exact birthplace. Mathura also served as the capital of the Surasena kingdom and was a major center of early Buddhist art.' },
+  { name:'Ayodhya', type:'Sacred Town', state:'Uttar Pradesh, India', icon:'🏹', lat:26.795, lng:82.198, desc:'Birthplace of Lord Rama, one of the seven sacred cities. The Ram Mandir, consecrated in January 2024, stands at the site traditionally identified as Rama\'s birthplace. Ayodhya sits on the sacred Sarayu river.' },
+  { name:'Haridwar', type:'Sacred Town', state:'Uttarakhand, India', icon:'🌊', lat:29.945, lng:78.163, desc:'Gateway to the Gods — where the Ganga descends from the Himalayas. One of the Sapta Puri. The Kumbh Mela here is the world\'s largest peaceful gathering of humanity. The Har Ki Pauri ghat aarti is witnessed by millions.' },
+  { name:'Kanchipuram', type:'Sacred Town', state:'Tamil Nadu, India', icon:'🏛️', lat:12.839, lng:79.701, desc:'City of Thousand Temples and one of the Sapta Puri. Sacred to both Shaivites (Ekambareswara) and Vaishnavas (Varadaraja). Also the seat of the Kanchi Shankaracharya Matha, one of the four Mathas established by Adi Shankaracharya.' },
+  { name:'Dwarka', type:'Sacred Town', state:'Gujarat, India', icon:'🌊', lat:22.238, lng:68.968, desc:'The sacred city of Lord Krishna, one of the Sapta Puri and a Char Dham. The ancient Dwarka is believed to lie submerged under the Arabian Sea — marine archaeological surveys have found submerged structures offshore.' },
+  { name:'Ujjain (Avantika)', type:'Sacred Town', state:'Madhya Pradesh, India', icon:'☀️', lat:23.182, lng:75.777, desc:'One of the seven sacred cities (Sapta Puri) and the prime meridian of ancient Indian astronomy. The Kumbh Mela rotates to Ujjain every 12 years. It was the home of the legendary king Vikramaditya and the poet Kalidasa.' },
+  { name:'Nashik', type:'Sacred Town', state:'Maharashtra, India', icon:'🌿', lat:19.992, lng:73.791, desc:'One of the four Kumbh Mela sites where Amrita fell from the celestial pot. Situated on the banks of the Godavari. Lord Rama is said to have spent part of his exile here in the Panchavati region.' },
+  { name:'Chidambaram', type:'Sacred Temple', state:'Tamil Nadu, India', icon:'💃', lat:11.400, lng:79.693, desc:'The Nataraja temple — the cosmic dance hall of Lord Shiva as Nataraja, Lord of the Dance. One of the five Panchabhoota Stalas (representing the sky/space element). The Chidambaram Rahasyam (secret) behind the golden-roofed inner sanctum is among Shaivism\'s greatest mysteries.' },
+  /* ── Bangladesh ── */
+  { name:'Chandranath', type:'Shakti Peetha', state:'Chittagong, Bangladesh', icon:'💃', lat:22.618, lng:91.6617, desc:'The Chandranath Shaktipeeth, located atop Chandranath Hill in Sitakunda, Bangladesh, is a revered Hindu pilgrimage site (approx. 1152 ft altitude). It is believed to be the place where Goddess Sati\'s right arm fell, making it one of the 51 sacred Shakti Peethas. The temple is dedicated to Goddess Bhavani and Lord Chandrashekhar.' },
+  /* ── NEPAL ── */
+  { name:'Pashupatinath', type:'Global Sacred Site', state:'Kathmandu, Nepal', icon:'🔱', lat:27.710, lng:85.349, desc:'The most sacred Shaivite temple in the world outside India. Located on the banks of the Bagmati river in Kathmandu. Dedicated to Pashupati (Shiva as lord of animals), it is a UNESCO World Heritage site and draws pilgrims from across South Asia.' },
+  { name:'Muktinath', type:'Global Sacred Site', state:'Mustang, Nepal', icon:'🏔️', lat:28.817, lng:83.872, desc:'Sacred to both Hindus and Buddhists at 3,710 m in the Himalayas. One of the 108 Divya Desams for Vaishnavas and a sacred Shaivite site. 108 stone water spouts and eternal flame of natural gas make it one of the most mystical sites on earth.' },
+  { name:'Janakpur (Janakpurdham)', type:'Global Sacred Site', state:'Madhesh, Nepal', icon:'🌸', lat:26.727, lng:85.926, desc:'The birthplace of Sita Devi, consort of Lord Rama. The Janaki Mandir here is one of the most spectacular Hindu temples in the world. The Ram-Sita Vivah Panchami festival re-enacts their divine wedding each year.' },
+  /* ── INDONESIA ── */
+  { name:'Pura Besakih', type:'Global Sacred Site', state:'Bali, Indonesia', icon:'🌋', lat:-8.374, lng:115.451, desc:'The Mother Temple of Bali — the largest and holiest Hindu temple complex on the island. Built on the slopes of Mount Agung, an active volcano considered sacred by Balinese Hindus. Over 80 temples form this vast complex.' },
+  { name:'Prambanan', type:'Global Sacred Site', state:'Java, Indonesia', icon:'🏛️', lat:-7.752, lng:110.491, desc:'The largest Hindu temple compound in Indonesia and the largest Trimurti temple in the world, dedicated to Brahma, Vishnu, and Shiva. A UNESCO World Heritage site built in the 9th century CE. The temples rise 47 metres to the sky.' },
+  /* ── CAMBODIA ── */
+  { name:'Angkor Wat', type:'Global Sacred Site', state:'Siem Reap, Cambodia', icon:'🛕', lat:13.412, lng:103.867, desc:'The world\'s largest religious monument, originally built as a Hindu temple for Vishnu in the 12th century CE. Built by King Suryavarman II of the Khmer Empire. Its five towers represent Mount Meru, home of the devas (gods).' },
+  /* ── MYANMAR ── */
+  { name:'Shwedagon Pagoda', type:'Global Sacred Site', state:'Yangon, Myanmar', icon:'✨', lat:16.798, lng:96.149, desc:'While primarily Buddhist, this golden pagoda houses sacred relics revered across Dharmic traditions. Built over 2,500 years ago, it is one of the oldest and most sacred monuments in the world. Hindu devas (planetary deities) grace the temple complex.' },
+  /* ── SRI LANKA ── */
+  { name:'Munneswaram', type:'Global Sacred Site', state:'North Western, Sri Lanka', icon:'🌊', lat:7.944, lng:79.894, desc:'One of the ancient Pancha Ishwarams (five sacred Shiva temples) of Sri Lanka, believed to have been consecrated by Lord Rama himself. A major pilgrimage site for Tamil Hindus. The temple complex has shrines to Shiva, Ganesha, and Kali.' },
+  { name:'Nainativu Nagapooshani', type:'Global Sacred Site', state:'Northern, Sri Lanka', icon:'🐍', lat:9.685, lng:79.872, desc:'The island temple of Goddess Nagapooshani (Parvati) accessible only by boat. Sacred to Tamil Hindus and associated with the serpent deity. The island itself is believed to be the place where Indra sought the blessings of the goddess.' },
+  /* ── THAILAND ── */
+  { name:'Erawan Shrine', type:'Global Sacred Site', state:'Bangkok, Thailand', icon:'🐘', lat:13.744, lng:100.539, desc:'The sacred shrine of Brahma in the heart of Bangkok — one of the most visited Hindu shrines outside South Asia. Thao Mahaprom (Lord Brahma with four faces) is venerated here. Thai Hindus and tourists offer flowers, incense, and dance performances daily.' },
+  { name:'Wat Phra Kaew (Brahma Shrine)', type:'Global Sacred Site', state:'Bangkok, Thailand', icon:'🌟', lat:13.752, lng:100.491, desc:'Within the Grand Palace complex, the Emerald Buddha temple complex hosts significant Hindu iconography including shrines to Brahma, Vishnu, and Ganesha. Thailand\'s Brahmanical court traditions are deeply rooted in Vedic heritage.' },
+  /* ── TRINIDAD & TOBAGO ── */
+  { name:'Waterloo Temple in the Sea', type:'Global Sacred Site', state:'Carapichaima, Trinidad', icon:'🌊', lat:10.546, lng:-61.393, desc:'The extraordinary Hindu temple built in the sea by Sewdass Sadhu, a devotee who carried every stone by bicycle over 25 years. A symbol of Hindu diaspora perseverance in the Caribbean. Dedicated to Lord Shiva, it attracts pilgrims worldwide.' },
+  /* ── MAURITIUS ── */
+  { name:'Ganga Talao (Grand Bassin)', type:'Global Sacred Site', state:'Savanne, Mauritius', icon:'💧', lat:-20.446, lng:57.488, desc:'A sacred crater lake considered the Ganges of Mauritius. During Maha Shivaratri, over 400,000 pilgrims walk barefoot for days to collect water and offer it at Shiva temples. One of the most remarkable Hindu pilgrimage events outside India.' },
+  /* ── SURINAME ── */
+  { name:'Arya Dewaker Mandir', type:'Global Sacred Site', state:'Paramaribo, Suriname', icon:'🙏', lat:5.852, lng:-55.203, desc:'One of the oldest and most important Hindu temples in the Americas, serving the significant Indo-Surinamese community descended from indentured labourers. A living center of Vedic tradition transplanted across the ocean over 150 years ago.' },
+  /* ── SOUTH AFRICA ── */
+  { name:'Sri Siva Subramaniya Temple', type:'Global Sacred Site', state:'Pietermaritzburg, South Africa', icon:'🌸', lat:-29.621, lng:30.398, desc:'One of the oldest surviving Hindu temples in sub-Saharan Africa, testifying to the 19th-century Indian diaspora\'s spiritual resilience. South Africa\'s Tamil and Hindu communities maintain vibrant temple traditions inherited from Tamil Nadu.' },
+  /* ── UNITED KINGDOM ── */
+  { name:'BAPS Swaminarayan Mandir (Neasden)', type:'Global Sacred Site', state:'London, United Kingdom', icon:'🏛️', lat:51.551, lng:-0.252, desc:'The first traditional Hindu mandir in Europe, crafted from 5,000 tonnes of Bulgarian limestone and Italian Carrara marble. Over a million hand-carved pieces were assembled by volunteers. A spiritual and architectural wonder of the Western world.' },
+  /* ── USA ── */
+  { name:'Malibu Hindu Temple', type:'Global Sacred Site', state:'California, USA', icon:'🌅', lat:34.063, lng:-118.713, desc:'Perched in the Santa Monica mountains overlooking the Pacific, this South Indian-style temple is one of the most significant Hindu temples in North America. Dedicated to Venkateswara and built in authentic Agamic tradition by artisans from India.' },
+  { name:'Ganesha Temple (Flushing)', type:'Global Sacred Site', state:'New York, USA', icon:'🐘', lat:40.735, lng:-73.831, desc:'The first traditional Hindu temple in the United States, founded in 1977. Built in authentic South Indian Agamic tradition with a consecrated Ganesha murti. It serves as a spiritual anchor for millions of Hindus across the northeastern USA.' },
+];
+
+function initPilgrimageMap() {
+  if (!window.L) return;
+  var map = L.map('india-map-container', {
+    center: [20.0, 80.0], zoom: 2,
+    minZoom: 2, maxZoom: 10,
+  });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap contributors © CARTO',
+    subdomains: 'abcd', maxZoom: 19
+  }).addTo(map);
+
+  SACRED_SITES.forEach(function(site) {
+    var color = site.type.includes('Char Dham') ? '#FF6B00' : site.type.includes('Jyotirlinga') ? '#FFD700' : site.type.includes('Shakti') ? '#C0392B' : site.type.includes('Global') ? '#7B68EE' : '#6B8E23';
+    var markerHtml = '<div style="width:14px;height:14px;border-radius:50%;background:'+color+';border:2px solid rgba(255,255,255,0.6);box-shadow:0 0 12px '+color+';cursor:pointer;transition:transform 0.2s;"></div>';
+    var icon = L.divIcon({ html: markerHtml, className: '', iconSize: [14, 14], iconAnchor: [7, 7] });
+    var marker = L.marker([site.lat, site.lng], { icon: icon }).addTo(map);
+    marker.bindTooltip(site.name, { permanent: false, direction: 'top', className: 'leaflet-tooltip-custom' });
+    marker.on('click', function() { openSitePanel(site); });
+  });
+}
+
+function openSitePanel(site) {
+  document.getElementById('site-icon').textContent = site.icon;
+  document.getElementById('site-name').textContent = site.name;
+  document.getElementById('site-type').textContent = site.type;
+  document.getElementById('site-state').textContent = '📍 ' + site.state;
+  document.getElementById('site-desc').textContent = site.desc;
+  document.getElementById('site-info-panel').classList.add('open');
+}
+function closeSitePanel() { document.getElementById('site-info-panel').classList.remove('open'); }
+
+/* ═══════════════════════════════════════════════════════
+   HISTORY TIMELINE
+═══════════════════════════════════════════════════════ */
+var TIMELINE_EVENTS = [
+  { year:'~7000 BCE', era:'Pre-Vedic', title:'Mehrgahr Settlement', icon:'🏺', text:'Early agricultural communities appear in the Indus-Saraswati region, ancestral to Vedic civilization.' },
+  { year:'~5000 BCE', era:'Vedic Dawn', title:'Rigveda Composed', icon:'📜', text:'The oldest scripture of humanity — the Rigveda — is revealed to Rishis in the Saraswati River valley.' },
+  { year:'~3100 BCE', era:'Vedic Age', title:'Mahabharata War', icon:'⚔️', text:'The great Kurukshetra war takes place. The Bhagavad Gita is revealed by Lord Krishna to Arjuna on the battlefield.' },
+  { year:'~2600 BCE', era:'Indus Valley', title:'Harappan Peak', icon:'🏙️', text:'Mohenjo-daro and Harappa reach their zenith — planned cities with sanitation more advanced than many modern towns.' },
+  { year:'~800 BCE', era:'Upanishadic Age', title:'Principal Upanishads', icon:'🧘', text:'The Brihadaranyaka, Chandogya, and other major Upanishads explore Brahman, Atman, and the path to liberation.' },
+  { year:'~600 BCE', era:'Darshana Age', title:'Six Darshanas Codified', icon:'⭐', text:'The six schools of Hindu philosophy — Nyaya, Vaisheshika, Sankhya, Yoga, Mimamsa, Vedanta — take their classical forms.' },
+  { year:'~500 BCE', era:'Classical', title:'Valmiki Composes Ramayana', icon:'🏹', text:'The 24,000-verse Ramayana is composed, depicting the life of Lord Rama — the ideal man and king.' },
+  { year:'~400 BCE', era:'Classical', title:'Panini\'s Grammar', icon:'🔤', text:'Panini creates the Ashtadhyayi — the world\'s first generative grammar, a masterwork of Sanskrit linguistic science.' },
+  { year:'~300 BCE', era:'Maurya Period', title:'Chandragupta Maurya', icon:'♟️', text:'The Maurya Empire unifies the Indian subcontinent. Kautilya\'s Arthashastra codifies Dharmic statecraft.' },
+  { year:'~200 BCE', era:'Classical', title:'Yoga Sutras of Patanjali', icon:'🧘', text:'Patanjali codifies 196 Yoga Sutras, systematizing the philosophy and eight-limbed practice of classical Yoga.' },
+  { year:'~320 CE', era:'Gupta Empire', title:'Golden Age Begins', icon:'🌟', text:'The Gupta dynasty ushers in India\'s Golden Age. Kalidasa, Aryabhata, Varahamihira produce timeless works in art, mathematics, and astronomy.' },
+  { year:'~788 CE', era:'Medieval', title:'Adi Shankaracharya', icon:'🕉️', text:'Shankara is born. By 32, he writes commentaries on the Prasthanatrayi, establishes four Mathas, and revives Advaita Vedanta across India.' },
+  { year:'~1000 CE', era:'Medieval', title:'Ramanuja & Bhakti', icon:'🌸', text:'Sri Ramanuja propounds Vishishtadvaita, reviving the devotional tradition of the Alvars and Bhakti movement.' },
+  { year:'~1200 CE', era:'Bhakti Age', title:'Bhakti Movement', icon:'❤️', text:'Saints like Kabir, Mirabai, Tukaram, and Chaitanya inspire millions with devotional poetry, songs, and direct God-experience.' },
+  { year:'~1238 CE', era:'Bhakti Age', title:'Madhvacharya Born', icon:'🌟', text:'Sri Madhvacharya, founder of Dvaita Vedanta, is born in coastal Karnataka. His philosophical system posits an eternal distinction between the individual soul and Brahman, and establishes the Udupi Krishna Matha tradition.' },
+  { year:'~1268 CE', era:'Bhakti Age', title:'Jnaneshwar & Warkari Sampradaya', icon:'📿', text:'The young saint-philosopher Jnaneshwar composes the Jnaneshwari — a Marathi commentary on the Bhagavad Gita — at age 16. He and Namdev found the Warkari pilgrimage tradition to Pandharpur, uniting Maharashtra in devotion to Vitthal (Krishna).' },
+  { year:'~1300 CE', era:'Bhakti Age', title:'Namdev\'s Devotional Songs', icon:'🎵', text:'Sant Namdev, the divine tailor-poet of Maharashtra, composes thousands of abhangas (devotional poems) that cross caste lines. His verses appear in the Guru Granth Sahib, showing how Bhakti transcended religious boundaries across northern India.' },
+  { year:'~1336 CE', era:'Vijayanagara Empire', title:'Vijayanagara Empire Founded', icon:'👑', text:'Harihara I and Bukka Raya I found the Vijayanagara Empire in modern Karnataka. For over two centuries it becomes the last great Hindu empire of South India — a bastion of Sanatan Dharma, Sanskrit learning, and temple art patronage.' },
+  { year:'~1356 CE', era:'Bhakti Age', title:'Vedanta Desika\'s Works', icon:'🏛️', text:'The great Vaishnava theologian Vedanta Desika, disciple in the Ramanuja lineage, produces towering works synthesizing Vishishtadvaita philosophy, poetry, and drama in Sanskrit and Manipravalam — a hallmark of the flowering of South Indian Bhakti.' },
+  { year:'~1398 CE', era:'Bhakti Age', title:'Kabir Das Born', icon:'🌿', text:'The mystic weaver-poet Kabir is born in Varanasi. His dohas (couplets) and pads (songs) dissolve the boundaries between Hindu and Sufi mysticism, pointing directly to the formless Brahman. His verses are treasured in both the Guru Granth Sahib and Hindu Bhakti tradition.' },
+  { year:'~1440 CE', era:'Bhakti Age', title:'Ramananda & Northern Bhakti', icon:'🙏', text:'Sri Ramananda, the pioneering Vaishnava saint of Varanasi, opens the Bhakti tradition to all castes and genders. His twelve disciples include Kabir, Ravidas, and Dhanna — a revolutionary circle that shaped the face of northern Indian spirituality.' },
+  { year:'~1479 CE', era:'Bhakti Age', title:'Vallabhacharya Born', icon:'🌸', text:'Sri Vallabhacharya is born. He founds the Pushti Marg (Path of Grace), a joyful devotional philosophy centred on Krishna as Shrinathji. The Srinathji temple at Nathdwara in Rajasthan and the Pushtimarg community continue his tradition to this day.' },
+  { year:'~1486 CE', era:'Bhakti Age', title:'Chaitanya Mahaprabhu Born', icon:'✨', text:'Sri Chaitanya Mahaprabhu is born in Navadvipa, Bengal. He establishes the Gaudiya Vaishnava tradition centered on congregational chanting (Sankirtan) of the names of Krishna. His ecstatic love for Krishna transformed Bengal and Vrindavan, and his tradition later reached the entire world.' },
+  { year:'~1498 CE', era:'Bhakti Age', title:'Mirabai Born', icon:'💜', text:'The princess-saint Mirabai is born in Rajasthan. Devoted utterly to Lord Krishna as her husband, she renounces royal life and composes hundreds of bhajans of intense longing and love. Her songs remain among the most beloved devotional poetry in the Hindi and Rajasthani traditions.' },
+  { year:'~1530 CE', era:'Bhakti Age', title:'Tulsidas & Ramcharitmanas', icon:'🏹', text:'Sant Tulsidas is born. He will compose the Ramcharitmanas — the retelling of the Ramayana in Awadhi (vernacular Hindi) — making the epic accessible to millions. It becomes arguably the most widely read religious text in northern India.' },
+  { year:'~1534 CE', era:'Bhakti Age', title:'Surdas Composes Sursagar', icon:'🎶', text:'The blind poet-saint Surdas composes the Sursagar — over 100,000 verses in Braj Bhasha devoted to the childhood and youth of Krishna. His vivid descriptions of Krishna\'s leelas, especially in Brindavan, deeply shaped the Bhakti aesthetic.' },
+  { year:'~1556 CE', era:'Vijayanagara Empire', title:'Battle of Talikota', icon:'⚔️', text:'The Battle of Talikota sees the Vijayanagara Empire defeated by a Deccan Sultanate alliance. Though the empire persists in weakened form, this marks a turning point. The resulting cultural dispersal spreads Vijayanagara temple arts and scholarship across South India.' },
+  { year:'~1608 CE', era:'Bhakti Age', title:'Tukaram Born', icon:'🌼', text:'Sant Tukaram, the greatest poet-saint of Maharashtra, is born near Pune. His abhangas (devotional poems) to Vitthal of Pandharpur are masterpieces of spiritual literature. Tukaram, a common shopkeeper by birth, became one of the most revered saints in the Warkari tradition.' },
+  { year:'1630 CE', era:'Maratha Age', title:'Chhatrapati Shivaji', icon:'⚔️', text:'Shivaji Maharaj establishes the Maratha Empire, reviving Hindu Swarajya (self-rule) and protecting Dharmic values.' },
+  { year:'1836 CE', era:'Modern', title:'Birth of Ramakrishna', icon:'🙏', text:'Mystic saint Ramakrishna Paramahamsa is born. His direct God-realization across all paths inspires a global spiritual renaissance.' },
+  { year:'1863 CE', era:'Modern', title:'Swami Vivekananda Born', icon:'✨', text:'Vivekananda is born. In 1893 he electrifies the Parliament of World\'s Religions in Chicago, presenting Vedanta to the Western world.' },
+  { year:'1869 CE', era:'Modern', title:'Mahatma Gandhi Born', icon:'🕊️', text:'Gandhi is born. He will use Ahimsa (non-violence) and Satyagraha (truth-force) — ancient Hindu ideals — to free a nation.' },
+  { year:'1947 CE', era:'Contemporary', title:'Indian Independence', icon:'🇮🇳', text:'India gains independence. The Constitution embodies Dharmic ideals: Satyameva Jayate (Truth Alone Triumphs) is the national motto.' },
+  { year:'Present', era:'Contemporary', title:'Global Dharmic Renaissance', icon:'🌐', text:'Yoga, Vedanta, and Hindu philosophy spread worldwide. Hundreds of millions practice Sanatan Dharma across every continent.' },
+];
+
+function buildTimeline() {
+  var track = document.getElementById('timeline-track');
+  if (!track) return;
+  TIMELINE_EVENTS.forEach(function(ev, i) {
+    var above = (i % 2 === 0);
+    var item = document.createElement('div');
+    item.className = 'tl-item ' + (above ? 'above' : 'below');
+
+    var card = document.createElement('div'); card.className = 'tl-card';
+    card.innerHTML = '<div class="tl-icon">' + ev.icon + '</div><div class="tl-year">' + ev.year + '</div><div class="tl-era">' + ev.era + '</div><div class="tl-title">' + ev.title + '</div><div class="tl-text">' + ev.text + '</div>';
+
+    var dot = document.createElement('div'); dot.className = 'tl-dot';
+    var conn = document.createElement('div'); conn.className = 'tl-connector'; conn.style.height = '44px';
+
+    if (above) { item.appendChild(card); item.appendChild(conn); item.appendChild(dot); }
+    else { item.appendChild(dot); item.appendChild(conn); item.appendChild(card); }
+    track.appendChild(item);
+  });
+
+  // Sync scroll thumb
+  var outer = document.getElementById('timeline-outer');
+  var thumb = document.getElementById('timeline-thumb');
+  if (!outer || !thumb) return;
+  outer.addEventListener('scroll', function() {
+    var pct = outer.scrollLeft / (outer.scrollWidth - outer.clientWidth) || 0;
+    var w = Math.max(10, (outer.clientWidth / outer.scrollWidth * 100));
+    thumb.style.width = w + '%';
+    thumb.style.marginLeft = (pct * (100 - w)) + '%';
+  });
+
+  // Drag-scroll
+  var isDragging = false, startX, scrollLeft;
+  outer.addEventListener('mousedown', function(e) { isDragging = true; startX = e.pageX - outer.offsetLeft; scrollLeft = outer.scrollLeft; outer.style.cursor = 'grabbing'; });
+  window.addEventListener('mouseup', function() { isDragging = false; outer.style.cursor = 'grab'; });
+  outer.addEventListener('mousemove', function(e) {
+    if (!isDragging) return; e.preventDefault();
+    outer.scrollLeft = scrollLeft - (e.pageX - outer.offsetLeft - startX);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   INIT — call on DOMContentLoaded
+═══════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function() {
+  initShloka();
+  buildTimeline();
+  setTimeout(function() {
+    if (window.L) { initPilgrimageMap(); }
+  }, 300);
 });
 </script>
 
