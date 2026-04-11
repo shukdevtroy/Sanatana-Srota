@@ -1184,427 +1184,493 @@ section {
 #chatbot-section {
   background: radial-gradient(ellipse at 50% 50%, rgba(212,160,23,0.04) 0%, transparent 70%);
 }
-/* ═══════════════════════════════════════════════════════
-   AI GURU CHATBOT — FAB + FLOATING PANEL
-═══════════════════════════════════════════════════════ */
-
-/* FAB button */
-#guru-fab {
-  position: fixed; bottom: 100px; right: 40px; z-index: 600;
-  width: 50px; height: 50px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--saffron), var(--gold));
-  border: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 28px rgba(255,107,0,0.55);
-  transition: transform .25s var(--transition), box-shadow .25s;
-  animation: guruFabPop .6s 1.2s cubic-bezier(0.4,0,0.2,1) both;
-  font-size: 26px; color: var(--bg-dark);
+.chatbot-wrapper {
+  max-width: 920px;
+  margin: 0 auto;
 }
-@keyframes guruFabPop { from { opacity:0; transform:scale(.6) } to { opacity:1; transform:scale(1) } }
-#guru-fab:hover { transform: scale(1.08); box-shadow: 0 8px 36px rgba(255,107,0,0.7); }
-#guru-fab .fab-open  { display: block; }
-#guru-fab .fab-close { display: none; }
-#guru-fab.open .fab-open  { display: none; }
-#guru-fab.open .fab-close { display: block; }
-.guru-fab-pulse {
-  position: absolute; inset: -5px; border-radius: 50%;
-  border: 2px solid rgba(255,107,0,0.45);
-  animation: guruFabRipple 2.4s ease-in-out infinite;
-}
-@keyframes guruFabRipple { 0%,100%{transform:scale(1);opacity:.6} 50%{transform:scale(1.28);opacity:0} }
-.guru-fab-tooltip {
-  position: absolute; right: 66px; bottom: 50%;
-  transform: translateY(50%);
-  background: var(--bg-panel); border: 1px solid var(--border-gold);
-  color: var(--gold-pale); font-family: var(--font-heading);
-  font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
-  padding: 6px 13px; border-radius: 5px; white-space: nowrap;
-  opacity: 0; pointer-events: none;
-  transition: opacity .2s;
-  box-shadow: 0 4px 16px rgba(0,0,0,.5);
-}
-#guru-fab:hover .guru-fab-tooltip { opacity: 1; }
-
-/* Chat panel */
-#guru-chat {
-  position: fixed; bottom: 96px; right: 100px; z-index: 600;
-  width: 450px; max-height: 450px;
+.chatbot-container {
   background: var(--bg-panel);
   border: 1px solid var(--border-gold);
-  border-radius: 18px;
-  display: flex; flex-direction: column;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 24px 72px rgba(0,0,0,.65), 0 0 0 1px rgba(255,107,0,0.08), var(--shadow-gold);
-  transform: translateY(18px) scale(.97); opacity: 0; pointer-events: none;
-  transition: transform .3s cubic-bezier(0.4,0,0.2,1), opacity .3s;
+  box-shadow: var(--shadow-gold), 0 0 0 1px rgba(255,107,0,0.05);
 }
-#guru-chat.open { transform: translateY(0) scale(1); opacity: 1; pointer-events: all; }
-
 /* Header */
-.guru-header {
-  padding: 15px 18px 13px;
-  background: linear-gradient(135deg, rgba(255,107,0,0.14), rgba(212,160,23,0.07));
+.chat-header {
+  background: linear-gradient(135deg, rgba(255,107,0,0.12), rgba(212,160,23,0.08));
   border-bottom: 1px solid var(--border-gold);
-  display: flex; align-items: center; gap: 12px; flex-shrink: 0;
-  position: relative;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
-.guru-avatar {
-  width: 40px; height: 40px; border-radius: 50%;
+.chat-avatar {
+  width: 48px; height: 48px;
   background: linear-gradient(135deg, var(--saffron), var(--gold));
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px; flex-shrink: 0; position: relative;
-  box-shadow: 0 0 0 3px rgba(255,107,0,0.22);
-  animation: guruAvatarGlow 3s ease-in-out infinite;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+  box-shadow: 0 0 16px rgba(255,107,0,0.4);
+  animation: avatarGlow 3s ease-in-out infinite;
 }
-@keyframes guruAvatarGlow {
-  0%,100%{ box-shadow: 0 0 0 3px rgba(255,107,0,0.22), 0 0 12px rgba(255,107,0,0.3); }
-  50%    { box-shadow: 0 0 0 3px rgba(255,107,0,0.4),  0 0 24px rgba(255,107,0,0.55); }
+@keyframes avatarGlow {
+  0%,100% { box-shadow: 0 0 16px rgba(255,107,0,0.4); }
+  50%      { box-shadow: 0 0 30px rgba(255,107,0,0.7); }
 }
-.guru-status-dot {
-  position: absolute; bottom: 1px; right: 1px;
-  width: 10px; height: 10px; border-radius: 50%;
-  background: #4ade80; border: 2px solid var(--bg-panel);
-  animation: guruStatusPulse 2s ease-in-out infinite;
+.chat-header-info { flex: 1; }
+.chat-bot-name {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gold-pale);
+  letter-spacing: 0.05em;
 }
-@keyframes guruStatusPulse { 0%,100%{opacity:1} 50%{opacity:.5} }
-.guru-header-text { flex: 1; min-width: 0; }
-.guru-header-name {
-  font-family: var(--font-heading); font-weight: 700; font-size: 14px;
-  color: var(--gold-pale); line-height: 1.2; letter-spacing: .05em;
-}
-.guru-header-sub {
-  font-size: 11px; color: var(--text-muted);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+.chat-bot-desc {
+  font-size: 12px;
+  color: var(--text-muted);
   margin-top: 2px;
 }
-
-/* Model switcher badge + dropdown */
-#guru-switcher-btn {
-  background: none; border: none; cursor: pointer; padding: 4px 6px;
-  border-radius: 6px; display: flex; align-items: center; gap: 4px;
-  transition: background .2s; flex-shrink: 0;
+.chat-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-heading);
+  font-size: 10px;
+  color: #4CAF50;
+  letter-spacing: 0.15em;
 }
-#guru-switcher-btn:hover { background: rgba(255,255,255,0.07); }
-#guru-switcher-btn svg { width: 13px; height: 13px; fill: var(--text-muted); flex-shrink: 0; }
-.guru-model-badge {
-  font-family: var(--font-heading); font-size: 10px; font-weight: 600;
-  letter-spacing: .06em; text-transform: uppercase;
-  background: rgba(255,158,0,0.14); border: 1px solid rgba(255,158,0,0.35);
-  color: #fbbf24; border-radius: 4px; padding: 2px 8px; white-space: nowrap;
+.status-dot {
+  width: 7px; height: 7px;
+  background: #4CAF50;
+  border-radius: 50%;
+  animation: statusPulse 2s ease-in-out infinite;
 }
-#guru-switcher-menu {
-  position: absolute; top: 64px; right: 10px; z-index: 20;
-  background: var(--bg-card); border: 1px solid var(--border-gold);
-  border-radius: 12px; padding: 6px; min-width: 220px;
-  box-shadow: 0 12px 40px rgba(0,0,0,.7);
-  display: none;
-  animation: guruMenuSlide .18s cubic-bezier(0.4,0,0.2,1) both;
+@keyframes statusPulse {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.4; }
 }
-@keyframes guruMenuSlide { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
-#guru-switcher-menu.open { display: block; }
-.guru-sw-title {
-  font-family: var(--font-heading); font-size: 10px; font-weight: 700;
-  letter-spacing: .1em; text-transform: uppercase;
-  color: var(--text-muted); padding: 4px 10px 8px;
-  border-bottom: 1px solid var(--border-gold); margin-bottom: 5px;
-}
-.guru-sw-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 9px 10px; border-radius: 8px; cursor: pointer;
-  transition: background .15s; border: none; background: none;
-  font-family: var(--font-body); font-size: 13px; color: var(--text-primary);
-  width: 100%; text-align: left;
-}
-.guru-sw-item:hover { background: rgba(255,107,0,0.08); }
-.guru-sw-item.active { background: rgba(255,107,0,0.14); }
-.guru-sw-item.active .guru-sw-name { color: var(--saffron-light); }
-.guru-sw-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.guru-sw-info { flex: 1; min-width: 0; }
-.guru-sw-name { font-weight: 600; font-size: 13px; line-height: 1.2; }
-.guru-sw-model { font-size: 11px; color: var(--text-muted); }
-.guru-sw-status {
-  font-family: var(--font-heading); font-size: 10px; font-weight: 600;
-  letter-spacing: .05em; padding: 2px 7px; border-radius: 4px; flex-shrink: 0;
-}
-.guru-sw-status.connected { background: rgba(74,222,128,0.12); color: #4ade80; border: 1px solid rgba(74,222,128,0.25); }
-.guru-sw-status.disconnected { background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--border-gold); }
-.guru-sw-divider { height: 1px; background: var(--border-gold); margin: 5px 0; }
-.guru-sw-manage {
-  width: 100%; padding: 8px 10px; border-radius: 7px;
-  background: rgba(255,107,0,0.06); border: 1px solid var(--border-gold);
-  color: var(--text-muted); font-size: 12px; font-family: var(--font-heading);
-  letter-spacing: .08em; text-transform: uppercase;
-  cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 7px;
-}
-.guru-sw-manage:hover { border-color: var(--saffron); color: var(--saffron-light); }
-
-/* Toggle row (web search + RAG) */
-.guru-toggle-row {
-  background: rgba(0,0,0,0.28);
+/* Model selector */
+.chat-model-bar {
+  background: rgba(0,0,0,0.3);
   border-bottom: 1px solid var(--border-gold);
-  padding: 9px 16px;
-  display: flex; align-items: center; gap: 14px;
-  flex-shrink: 0; flex-wrap: wrap;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
-.guru-toggle {
-  display: flex; align-items: center; gap: 7px;
-  cursor: pointer; user-select: none;
+.model-label {
+  font-family: var(--font-heading);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
-.gtoggle-cb { display: none; }
-.gtoggle-sw {
-  width: 34px; height: 19px;
-  background: rgba(255,255,255,0.06);
+.model-select {
+  background: var(--bg-card);
   border: 1px solid var(--border-gold);
-  border-radius: 10px; position: relative;
-  transition: background .3s, border-color .3s;
-  flex-shrink: 0;
+  color: var(--gold);
+  padding: 5px 12px;
+  border-radius: 3px;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  cursor: pointer;
+  outline: none;
 }
-.gtoggle-sw::after {
-  content:''; position: absolute;
-  top: 2px; left: 2px; width: 13px; height: 13px;
-  background: var(--text-muted); border-radius: 50%;
-  transition: all .3s;
+.model-select option { background: var(--bg-card); }
+.web-search-toggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  margin-left: auto;
 }
-.gtoggle-cb:checked + .gtoggle-sw { background: rgba(255,107,0,0.28); border-color: var(--saffron); }
-.gtoggle-cb:checked + .gtoggle-sw::after { left: calc(100% - 15px); background: var(--saffron); }
-.gtoggle-label {
-  font-family: var(--font-heading); font-size: 10px;
-  letter-spacing: .18em; text-transform: uppercase;
-  color: var(--text-muted); white-space: nowrap;
+.toggle-cb { display: none; }
+.toggle-switch {
+  width: 36px; height: 20px;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-gold);
+  border-radius: 10px;
+  position: relative;
+  transition: background var(--transition);
 }
-
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 14px; height: 14px;
+  background: var(--text-muted);
+  border-radius: 50%;
+  transition: all var(--transition);
+}
+.toggle-cb:checked + .toggle-switch { background: rgba(255,107,0,0.3); border-color: var(--saffron); }
+.toggle-cb:checked + .toggle-switch::after { left: calc(100% - 16px); background: var(--saffron); }
+.toggle-text {
+  font-family: var(--font-heading);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
 /* RAG status bar */
 #rag-status-bar {
   background: rgba(75,0,130,0.15);
   border-bottom: 1px solid rgba(75,0,130,0.4);
-  padding: 7px 16px;
-  display: none; align-items: center; gap: 10px; flex-wrap: wrap;
-  font-family: var(--font-heading); font-size: 10px;
-  letter-spacing: .15em; text-transform: uppercase;
+  padding: 7px 24px;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-family: var(--font-heading);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
 }
 #rag-status-bar.visible { display: flex; }
 .rag-badge {
   background: linear-gradient(135deg, #4B0082, var(--saffron));
-  color: var(--gold-pale); padding: 3px 10px;
-  border-radius: 99px; font-size: 9px; letter-spacing: .2em; font-weight: 700;
+  color: var(--gold-pale);
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  font-weight: 700;
 }
 .rag-text { color: #fff; flex: 1; }
 .rag-book-pills { display: flex; gap: 6px; flex-wrap: wrap; }
 .rag-pill {
-  background: rgba(212,160,23,0.1); border: 1px solid var(--border-gold);
-  color: var(--gold); padding: 2px 8px; border-radius: 99px;
-  font-size: 9px; cursor: pointer; transition: all .2s;
+  background: rgba(212,160,23,0.1);
+  border: 1px solid var(--border-gold);
+  color: var(--gold);
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 9px;
+  cursor: pointer;
+  transition: all 0.2s;
   display: flex; align-items: center; gap: 4px;
 }
 .rag-pill:hover { background: rgba(212,160,23,0.2); }
 .rag-pill.active { background: rgba(255,107,0,0.2); border-color: var(--saffron); color: var(--saffron-light); }
-.rag-pill .pill-x { opacity: .5; font-size: 8px; }
+.rag-pill .pill-x { opacity: 0.5; font-size: 8px; }
 .rag-index-btn {
-  background: transparent; border: 1px solid var(--border-saffron);
-  color: var(--saffron-light); padding: 3px 12px;
-  border-radius: 3px; font-family: var(--font-heading);
-  font-size: 9px; letter-spacing: .15em; text-transform: uppercase;
-  cursor: pointer; transition: all .2s;
+  background: transparent;
+  border: 1px solid var(--border-saffron);
+  color: var(--saffron-light);
+  padding: 3px 12px;
+  border-radius: 3px;
+  font-family: var(--font-heading);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 .rag-index-btn:hover { background: rgba(255,107,0,0.1); }
-.rag-index-btn:disabled { opacity: .4; cursor: not-allowed; }
-#rag-progress { width:100%; height:3px; background:rgba(212,160,23,0.1); border-radius:99px; overflow:hidden; display:none; }
-#rag-progress.visible { display:block; }
-#rag-progress-bar { height:100%; width:0%; background:linear-gradient(90deg,#4B0082,var(--saffron),var(--gold)); border-radius:99px; transition:width .3s ease; }
-
-/* RAG context block */
+.rag-index-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+#rag-progress {
+  width: 100%;
+  height: 3px;
+  background: rgba(212,160,23,0.1);
+  border-radius: 99px;
+  overflow: hidden;
+  display: none;
+}
+#rag-progress.visible { display: block; }
+#rag-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #4B0082, var(--saffron), var(--gold));
+  border-radius: 99px;
+  transition: width 0.3s ease;
+}
+/* RAG source block styling */
 .rag-context-block {
-  background: rgba(75,0,130,0.1); border: 1px solid rgba(75,0,130,0.35);
-  border-radius: 4px; padding: 8px 12px; margin-top: 8px; font-size: 13px;
+  background: rgba(75,0,130,0.1);
+  border: 1px solid rgba(75,0,130,0.35);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-top: 8px;
+  font-size: 13px;
 }
 .rag-context-title {
-  font-family: var(--font-heading); font-size: 9px; letter-spacing: .25em;
-  text-transform: uppercase; color: #9b59d4; margin-bottom: 5px;
+  font-family: var(--font-heading);
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #9b59d4;
+  margin-bottom: 5px;
 }
 .rag-chunk-item {
-  color: var(--text-secondary); font-size: 12px; line-height: 1.5;
-  border-left: 2px solid rgba(155,89,212,0.4); padding-left: 8px;
-  margin-bottom: 5px; font-style: italic;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+  border-left: 2px solid rgba(155,89,212,0.4);
+  padding-left: 8px;
+  margin-bottom: 5px;
+  font-style: italic;
 }
-.rag-chunk-src { font-family: var(--font-heading); font-size: 9px; color: var(--text-muted); letter-spacing: .1em; margin-top: 2px; }
-
-/* Messages area */
-.guru-msgs {
-  flex: 1; overflow-y: auto; padding: 16px 14px;
-  display: flex; flex-direction: column; gap: 12px;
-  scrollbar-width: thin; scrollbar-color: var(--border-gold) transparent;
+.rag-chunk-src {
+  font-family: var(--font-heading);
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  margin-top: 2px;
 }
-.guru-msgs::-webkit-scrollbar { width: 3px; }
-.guru-msgs::-webkit-scrollbar-thumb { background: var(--border-gold); border-radius: 2px; }
-
 /* Messages */
-.msg {
-  display: flex; gap: 9px;
-  animation: msgSlide .28s cubic-bezier(0.4,0,0.2,1) both;
-  max-width: 88%;
+.chat-messages {
+  height: 440px;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  scroll-behavior: smooth;
 }
-@keyframes msgSlide { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.chat-messages::-webkit-scrollbar { width: 4px; }
+.chat-messages::-webkit-scrollbar-thumb { background: var(--border-gold); border-radius: 2px; }
+.msg {
+  display: flex;
+  gap: 12px;
+  animation: msgSlide 0.3s ease;
+  max-width: 85%;
+}
+@keyframes msgSlide {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 .msg.user { flex-direction: row-reverse; align-self: flex-end; }
 .msg-avatar {
-  width: 34px; height: 34px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 15px; flex-shrink: 0;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
 }
-.msg.bot  .msg-avatar { background: linear-gradient(135deg, var(--saffron), var(--gold)); }
-.msg.user .msg-avatar { background: rgba(212,160,23,0.12); border: 1px solid var(--border-gold); }
-.msg-body { display: flex; flex-direction: column; gap: 4px; }
+.msg.bot .msg-avatar { background: linear-gradient(135deg, var(--saffron), var(--gold)); }
+.msg.user .msg-avatar { background: rgba(212,160,23,0.15); border: 1px solid var(--border-gold); }
+.msg-body { display: flex; flex-direction: column; gap: 6px; }
 .msg.user .msg-body { align-items: flex-end; }
 .msg-bubble {
-  padding: 10px 14px; border-radius: 14px;
-  font-family: var(--font-body); font-size: 14px; line-height: 1.7; max-width: 100%;
+  padding: 12px 18px;
+  border-radius: 4px;
+  font-size: 15px;
+  line-height: 1.7;
+  max-width: 100%;
 }
 .msg.bot .msg-bubble {
-  background: rgba(255,107,0,0.06); border: 1px solid rgba(255,107,0,0.16);
-  border-bottom-left-radius: 4px; border-left: 3px solid var(--saffron);
+  background: rgba(255,107,0,0.06);
+  border: 1px solid rgba(255,107,0,0.15);
+  border-left: 3px solid var(--saffron);
   color: var(--text-primary);
 }
 .msg.user .msg-bubble {
-  background: linear-gradient(135deg, rgba(255,107,0,0.18), rgba(212,160,23,0.14));
-  border: 1px solid var(--border-gold); border-bottom-right-radius: 4px;
+  background: linear-gradient(135deg, rgba(212,160,23,0.15), rgba(255,107,0,0.1));
+  border: 1px solid var(--border-gold);
   color: var(--text-primary);
 }
-.msg-time { font-family: var(--font-heading); font-size: 10px; color: var(--text-muted); letter-spacing: .08em; }
-
+.msg-time {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: var(--font-heading);
+  letter-spacing: 0.1em;
+}
 /* Sources */
 .sources-block {
-  margin-top: 8px; padding: 9px 12px;
-  background: rgba(0,0,0,.3); border: 1px solid var(--border-gold); border-radius: 6px; font-size: 12px;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border-gold);
+  border-radius: 4px;
+  font-size: 12px;
 }
 .sources-title {
-  font-family: var(--font-heading); font-size: 9px; font-weight: 700;
-  letter-spacing: .28em; text-transform: uppercase;
-  color: var(--saffron); margin-bottom: 6px; display: flex; align-items: center; gap: 5px;
+  font-family: var(--font-heading);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--saffron);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .source-link {
-  display: flex; align-items: flex-start; gap: 5px;
-  color: var(--text-secondary); text-decoration: none;
-  margin-bottom: 4px; transition: color var(--transition);
-  word-break: break-all; font-size: 11px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  margin-bottom: 4px;
+  transition: color var(--transition);
+  word-break: break-all;
+  font-size: 11px;
 }
 .source-link:hover { color: var(--saffron-light); }
-.source-link::before { content:'⟐'; color: var(--gold); flex-shrink: 0; }
-
-/* Typing dots */
-.typing-indicator .msg-bubble { display:flex; gap:5px; align-items:center; padding:12px 18px; }
-.typing-dot { width:7px; height:7px; background:var(--saffron); border-radius:50%; animation:typingBounce 1.4s ease-in-out infinite; }
-.typing-dot:nth-child(2){animation-delay:.2s} .typing-dot:nth-child(3){animation-delay:.4s}
-@keyframes typingBounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-8px)} }
-
-/* Suggestion chips */
-.guru-chips {
-  padding: 0 14px 10px; display: flex; gap: 6px; flex-wrap: wrap; flex-shrink: 0;
+.source-link::before { content: '⟐'; color: var(--gold); flex-shrink: 0; }
+/* Typing */
+.typing-indicator .msg-bubble {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  padding: 14px 20px;
 }
+.typing-dot {
+  width: 7px; height: 7px;
+  background: var(--saffron);
+  border-radius: 50%;
+  animation: typingBounce 1.4s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce {
+  0%,60%,100% { transform: translateY(0); }
+  30%          { transform: translateY(-8px); }
+}
+/* Suggestions */
+.chat-suggestions {
+  padding: 12px 24px;
+  border-top: 1px solid var(--border-gold);
+  background: rgba(0,0,0,0.2);
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  flex-wrap: wrap;
+}
+.chat-suggestions::-webkit-scrollbar { display: none; }
 .suggestion-chip {
-  font-family: var(--font-heading); font-size: 11px; letter-spacing: .06em;
-  padding: 5px 12px; border-radius: 100px;
-  border: 1px solid rgba(255,107,0,0.3); background: rgba(255,107,0,0.07);
-  color: var(--saffron-light); cursor: pointer; transition: all .18s; white-space: nowrap;
+  background: rgba(255,107,0,0.08);
+  border: 1px solid rgba(255,107,0,0.25);
+  color: var(--saffron-light);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-family: var(--font-heading);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all var(--transition);
+  flex-shrink: 0;
 }
-.suggestion-chip:hover { border-color: var(--saffron); background: rgba(255,107,0,0.18); color: var(--gold-bright); }
-
-/* Input row */
-.guru-input-row {
-  padding: 10px 12px 12px; border-top: 1px solid var(--border-gold);
-  display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0;
-  background: rgba(0,0,0,0.22);
+.suggestion-chip:hover { background: rgba(255,107,0,0.2); border-color: var(--saffron); }
+/* Input */
+.chat-input-area {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-gold);
+  background: rgba(0,0,0,0.25);
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+.chat-input-wrap {
+  flex: 1;
+  position: relative;
 }
 #chat-input {
-  flex: 1; background: var(--bg-card); border: 1px solid var(--border-gold);
-  border-radius: 10px; padding: 9px 13px; font-size: 14px;
-  font-family: var(--font-body); color: var(--text-primary); outline: none;
-  resize: none; max-height: 90px; line-height: 1.5;
-  transition: border-color .2s; scrollbar-width: none;
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  color: var(--text-primary);
+  padding: 12px 48px 12px 18px;
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  resize: none;
+  min-height: 48px;
+  max-height: 140px;
+  overflow-y: auto;
+  outline: none;
+  transition: border-color var(--transition);
+  line-height: 1.5;
 }
 #chat-input:focus { border-color: var(--saffron); }
 #chat-input::placeholder { color: var(--text-muted); }
-#send-btn {
-  width: 38px; height: 38px;
-  background: linear-gradient(135deg, var(--saffron), var(--gold));
-  border: none; border-radius: 10px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; transition: all .2s; color: var(--bg-dark); font-size: 17px;
-}
-#send-btn:hover { opacity: .88; transform: scale(1.07); }
-#send-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
 .input-clear {
-  display: none; position: absolute; /* kept for JS compat */
+  position: absolute;
+  right: 10px; top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px;
+  display: none;
+  transition: color var(--transition);
 }
 .input-clear.visible { display: block; }
-.guru-footer-note {
-  text-align: center; font-family: var(--font-heading); font-size: 10px;
-  letter-spacing: .1em; color: var(--text-muted); padding: 0 14px 9px; flex-shrink: 0;
+.input-clear:hover { color: var(--saffron); }
+#send-btn {
+  background: linear-gradient(135deg, var(--saffron), var(--gold));
+  border: none;
+  color: var(--bg-dark);
+  width: 48px; height: 48px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  flex-shrink: 0;
 }
-
-/* API Key Modal */
-#guru-key-modal {
-  position: fixed; inset: 0; background: rgba(0,0,0,.88);
-  backdrop-filter: blur(16px); z-index: 700;
-  display: flex; align-items: center; justify-content: center; padding: 20px;
+#send-btn:hover { opacity: 0.85; transform: scale(1.05); }
+#send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+/* API key setup */
+.api-setup {
+  padding: 28px 24px;
+  text-align: center;
+  border-top: 1px solid var(--border-gold);
+  background: rgba(0,0,0,0.2);
 }
-.guru-key-box {
-  background: var(--bg-panel); border: 1px solid var(--border-gold);
-  border-radius: 18px; padding: 32px 28px; max-width: 420px; width: 100%;
-  animation: msgSlide .3s cubic-bezier(0.4,0,0.2,1) both; position: relative;
-  box-shadow: var(--shadow-gold);
+.api-setup p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  line-height: 1.6;
 }
-.guru-key-box h3 {
-  font-family: var(--font-display); font-size: 20px; color: var(--gold-pale);
-  margin-bottom: 6px; letter-spacing: .05em;
+.api-input-row {
+  display: flex;
+  gap: 10px;
+  max-width: 500px;
+  margin: 0 auto;
+  flex-wrap: wrap;
 }
-.guru-key-sub { font-family: var(--font-body); font-size: 14px; color: var(--text-muted); margin-bottom: 22px; line-height: 1.65; }
-.guru-key-sub a { color: var(--saffron); text-decoration: none; }
-.guru-key-sub a:hover { text-decoration: underline; }
-.guru-modal-x {
-  position: absolute; top: 14px; right: 14px;
-  width: 30px; height: 30px; border-radius: 50%;
-  background: var(--bg-card); border: 1px solid var(--border-gold);
-  color: var(--text-muted); font-size: 14px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all .2s; line-height: 1;
+.api-key-input {
+  flex: 1;
+  min-width: 200px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  color: var(--text-primary);
+  padding: 10px 16px;
+  border-radius: 3px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  outline: none;
+  transition: border-color var(--transition);
 }
-.guru-modal-x:hover { background: rgba(255,107,0,0.12); color: var(--saffron); border-color: var(--saffron); }
-.guru-saved-badge {
-  font-family: var(--font-heading); font-size: 12px; font-weight: 600; color: #4ade80;
-  background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.25);
-  border-radius: 7px; padding: 7px 12px; margin-bottom: 12px;
+.api-key-input:focus { border-color: var(--saffron); }
+.api-key-input::placeholder { color: var(--text-muted); }
+.api-save-btn {
+  background: linear-gradient(135deg, var(--saffron), var(--gold));
+  color: var(--bg-dark);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 3px;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--transition);
 }
-#guru-key-input {
-  width: 100%; background: var(--bg-card); border: 1px solid var(--border-gold);
-  border-radius: 9px; padding: 11px 14px; font-size: 14px;
-  font-family: var(--font-body); color: var(--text-primary); outline: none;
-  margin-bottom: 14px; transition: border-color .2s;
-}
-#guru-key-input:focus { border-color: var(--saffron); }
-#guru-key-input::placeholder { color: var(--text-muted); }
-#guru-key-input.error { border-color: rgba(255,107,0,.8); }
-.guru-key-btns { display: flex; gap: 8px; }
-#guru-key-save {
-  flex: 1; background: linear-gradient(135deg, var(--saffron), var(--gold));
-  color: var(--bg-dark); border: none; border-radius: 8px; padding: 11px;
-  font-family: var(--font-heading); font-size: 12px; font-weight: 700;
-  letter-spacing: .1em; text-transform: uppercase; cursor: pointer; transition: all .2s;
-}
-#guru-key-save:hover { opacity: .88; }
-#guru-key-skip {
-  background: transparent; color: var(--text-muted); border: 1px solid var(--border-gold);
-  border-radius: 8px; padding: 11px 16px; font-family: var(--font-heading);
-  font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
-  cursor: pointer; transition: all .2s;
-}
-#guru-key-skip:hover { border-color: var(--saffron); color: var(--saffron-light); }
-.guru-modal-note { font-family: var(--font-heading); font-size: 10px; letter-spacing: .1em; color: var(--text-muted); text-align: center; margin-top: 12px; line-height: 1.5; }
-
-.guru-error-bubble { background: rgba(255,107,0,0.09); border: 1px solid rgba(255,107,0,0.3); border-radius: 10px; padding: 9px 12px; font-size: 13px; color: var(--saffron-light); }
-
-@media (max-width: 480px) {
-  #guru-chat { width: calc(100vw - 24px); right: 12px; bottom: 86px; }
-  #guru-fab  { right: 16px; bottom: 20px; }
-}
+.api-save-btn:hover { opacity: 0.85; }
 /* ═══════════════════════════════════════════════════════
    PHILOSOPHY SECTION
 ═══════════════════════════════════════════════════════ */
@@ -1811,7 +1877,8 @@ footer {
   .deities-grid { grid-template-columns: repeat(3, 1fr); }
   .footer-top { grid-template-columns: 1fr; gap: 32px; }
   .hero-cta-group { flex-direction: column; align-items: center; }
-  .guru-chips { flex-wrap: nowrap; overflow-x: auto; }
+  .chat-suggestions { flex-wrap: nowrap; overflow-x: auto; }
+  .chat-messages { height: 360px; }
 }
 /* ═══════════════════════════════════════════════════════
    MISC UTILITIES
@@ -1864,10 +1931,10 @@ footer {
 ═══════════════════════════════════════════════════════ */
 #scroll-top-btn {
   position: fixed;
-  bottom: 35px;
-  right: 40px;
+  bottom: 36px;
+  right: 36px;
   z-index: 9999;
-  width: 50px; height: 50px;
+  width: 52px; height: 52px;
   background: linear-gradient(135deg, var(--saffron), var(--gold));
   color: var(--bg-dark);
   border: none;
@@ -3201,7 +3268,7 @@ footer {
     <li><a href="#shloka-section">Daily Shloka</a></li>
     <li><a href="#pilgrimage-map">Sacred Sites</a></li>
     <li><a href="#history-timeline">Timeline</a></li>
-    <li><a href="#chatbot-section" class="nav-chat-btn" onclick="openGuruChat()">AI Guru</a></li>
+    <li><a href="aiguru.html" class="nav-chat-btn" target="_blank">AI Guru</a></li>
   </ul>
 </nav>
 
@@ -3271,7 +3338,7 @@ footer {
 
   <div class="hero-cta-group">
     <a href="#texts" class="btn-primary">📖 Explore Sacred Texts</a>
-    <a href="#chatbot-section" class="btn-secondary" onclick="openGuruChat()">🤖 Consult AI Guru</a>
+    <a href="aiguru.html" class="btn-secondary" target="_blank">🤖 Consult AI Guru</a>
   </div>
 
   <div class="scroll-hint">
@@ -3512,7 +3579,7 @@ footer {
     <!-- Right: Upcoming Festivals List -->
     <div class="festivals-panel reveal">
       <div class="festivals-panel-header">
-        <span class="festivals-panel-title">📅 Upcoming Sacred Festivals. Check with Google.</span>
+        <span class="festivals-panel-title">📅 Upcoming Sacred Festivals</span>
         <span class="festivals-year-badge" id="fest-year-badge">2026–2027</span>
       </div>
       <div class="festivals-list" id="festivals-list">
@@ -4096,133 +4163,119 @@ footer {
   </div>
 </section>
 
-<!-- ═══════════════ AI GURU FAB ═══════════════ -->
-<!-- FAB trigger button -->
-<button id="guru-fab" aria-label="Open Dharma Guru AI" onclick="toggleGuruChat()">
-  <div class="guru-fab-pulse"></div>
-  <span class="fab-open">ॐ</span>
-  <span class="fab-close" style="font-size:20px;">✕</span>
-  <span class="guru-fab-tooltip">Dharma Guru AI</span>
-</button>
+<div class="section-sep"></div>
 
-<!-- Floating chat panel -->
-<div id="guru-chat" role="dialog" aria-label="Dharma Guru AI">
-
-  <!-- Header -->
-  <div class="guru-header">
-    <div class="guru-avatar">ॐ<div class="guru-status-dot"></div></div>
-    <div class="guru-header-text">
-      <div class="guru-header-name">Dharma Guru AI</div>
-      <div class="guru-header-sub" id="guru-sub-text">Vedas · Upanishads · Bhagavad Gita · Puranas</div>
-    </div>
-    <!-- Model switcher -->
-    <button id="guru-switcher-btn" onclick="toggleGuruSwitcher(event)" title="Switch model">
-      <span class="guru-model-badge" id="guru-badge">Groq</span>
-      <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
-    </button>
-    <div id="guru-switcher-menu">
-      <div class="guru-sw-title">Select Model</div>
-      <button class="guru-sw-item active" id="sw-llama70b" onclick="switchGuruModel('groq:llama-3.3-70b-versatile','Llama 3.3 70B',this)">
-        <div class="guru-sw-dot" style="background:#f59e0b;"></div>
-        <div class="guru-sw-info">
-          <div class="guru-sw-name">LLaMA 3.3 70B</div>
-          <div class="guru-sw-model">Groq · Best quality</div>
-        </div>
-        <span class="guru-sw-status connected" id="sw-70b-status">Active</span>
-      </button>
-      <button class="guru-sw-item" id="sw-llama8b" onclick="switchGuruModel('groq:llama-3.1-8b-instant','Llama 3.1 8B',this)">
-        <div class="guru-sw-dot" style="background:#fbbf24;"></div>
-        <div class="guru-sw-info">
-          <div class="guru-sw-name">LLaMA 3.1 8B</div>
-          <div class="guru-sw-model">Groq · Fastest</div>
-        </div>
-        <span class="guru-sw-status disconnected" id="sw-8b-status">Ready</span>
-      </button>
-      <div class="guru-sw-divider"></div>
-      <button class="guru-sw-manage" onclick="openGuruKeyModal()">
-        🔑 &nbsp;Manage Groq API Key
-      </button>
+<!-- ═══════════════ AI CHATBOT ═══════════════ -->
+<section id="chatbot-section">
+  <div class="section-header reveal">
+    <span class="section-label">Divine Knowledge</span>
+    <h2 class="section-title">AI Guru — Sanatani Wisdom Bot</h2>
+    <p style="color:var(--text-muted);max-width:620px;margin:0 auto;font-size:16px;">
+      Powered by advanced language models trained in Hindu philosophy. Ask anything about Sanatan Dharma, sacred texts, mythology, rituals, and more.
+    </p>
+    <div class="section-underline">
+      <span class="underline-line"></span>
+      <span class="underline-dot"></span>
+      <span class="underline-line right"></span>
     </div>
   </div>
 
-  <!-- Toggle row: Web Search + RAG -->
-  <div class="guru-toggle-row">
-    <label class="guru-toggle" title="Enable web search for current information">
-      <input type="checkbox" class="gtoggle-cb" id="web-search-cb" checked />
-      <span class="gtoggle-sw"></span>
-      <span class="gtoggle-label">🔍 Web Search</span>
-    </label>
-    <label class="guru-toggle" title="Enable RAG: AI answers from your uploaded sacred text PDFs">
-      <input type="checkbox" class="gtoggle-cb" id="rag-cb" onchange="toggleRAG(this.checked)" />
-      <span class="gtoggle-sw"></span>
-      <span class="gtoggle-label">📚 Sacred Texts RAG</span>
-    </label>
-  </div>
-
-  <!-- RAG Status Bar -->
-  <div id="rag-status-bar">
-    <span class="rag-badge">RAG ACTIVE</span>
-    <span class="rag-text" id="rag-status-text">No texts indexed yet. Index a PDF to enable retrieval.</span>
-    <div class="rag-book-pills" id="rag-book-pills"></div>
-    <button class="rag-index-btn" id="rag-index-btn" onclick="openRAGIndexModal()">＋ Index PDF</button>
-    <div id="rag-progress" style="width:100%"><div id="rag-progress-bar"></div></div>
-  </div>
-
-  <!-- Messages -->
-  <div class="guru-msgs" id="chat-messages">
-    <div class="msg bot">
-      <div class="msg-avatar">ॐ</div>
-      <div class="msg-body">
-        <div class="msg-bubble">
-          🙏 <strong>Namaste!</strong> I am <em>Dharma Guru</em>, your guide to the eternal wisdom of Sanatan Dharma.<br><br>
-          Ask me anything about the Vedas, Upanishads, Bhagavad Gita, Ramayana, Mahabharata, Puranas, Hindu philosophy, mythology, and rituals.<br><br>
-          How may I serve you today?
+  <div class="chatbot-wrapper reveal">
+    <div class="chatbot-container">
+      <!-- Header -->
+      <div class="chat-header">
+        <div class="chat-avatar">ॐ</div>
+        <div class="chat-header-info">
+          <div class="chat-bot-name">Dharma Guru AI</div>
+          <div class="chat-bot-desc">Expert in Vedas, Upanishads, Bhagavad Gita, Puranas & Hindu Mythology</div>
         </div>
-        <div class="msg-time" id="init-time"></div>
+        <div class="chat-status">
+          <span class="status-dot"></span>
+          <span>Active</span>
+        </div>
+      </div>
+
+      <!-- Model Bar -->
+      <div class="chat-model-bar">
+        <span class="model-label">Model:</span>
+        <select class="model-select" id="model-select">
+          <optgroup label="Groq (Fast)">
+            <option value="groq:llama-3.3-70b-versatile">Groq — LLaMA 3.3 70B</option>
+            <option value="groq:llama-3.1-8b-instant">Groq — LLaMA 3.1 8B (Instant)</option>
+          </optgroup>
+
+        </select>
+        <label class="web-search-toggle" title="Enable web search for current information">
+          <input type="checkbox" class="toggle-cb" id="web-search-cb" checked />
+          <span class="toggle-switch"></span>
+          <span class="toggle-text">🔍 Web Search</span>
+        </label>
+        <label class="web-search-toggle" title="Enable RAG: AI answers from the actual sacred text PDFs" style="margin-left:0;">
+          <input type="checkbox" class="toggle-cb" id="rag-cb" onchange="toggleRAG(this.checked)" />
+          <span class="toggle-switch"></span>
+          <span class="toggle-text">📚 Sacred Texts RAG</span>
+        </label>
+      </div>
+
+      <!-- RAG Status Bar -->
+      <div id="rag-status-bar">
+        <span class="rag-badge">RAG ACTIVE</span>
+        <span class="rag-text" id="rag-status-text">No texts indexed yet. Index a PDF to enable retrieval.</span>
+        <div class="rag-book-pills" id="rag-book-pills"></div>
+        <button class="rag-index-btn" id="rag-index-btn" onclick="openRAGIndexModal()">＋ Index PDF</button>
+        <div id="rag-progress" style="width:100%"><div id="rag-progress-bar"></div></div>
+      </div>
+
+      <!-- Messages -->
+      <div class="chat-messages" id="chat-messages">
+        <div class="msg bot">
+          <div class="msg-avatar">ॐ</div>
+          <div class="msg-body">
+            <div class="msg-bubble">
+              🙏 <strong>Namaste!</strong> I am <em>Dharma Guru</em>, your guide to the eternal wisdom of Sanatan Dharma.<br><br>
+              I can help you understand the Vedas, Upanishads, Bhagavad Gita, Ramayana, Mahabharata, Puranas, and all aspects of Hindu philosophy, mythology, and ritual.<br><br>
+              I can also search the web for current information and provide sources. How may I serve you today?
+            </div>
+            <div class="msg-time" id="init-time"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Suggestions -->
+      <div class="chat-suggestions">
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">What is the meaning of OM?</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">Explain the Bhagavad Gita's core teachings</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">Who are the Ashta Dikpalakas?</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">What are the 4 Vedas?</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">Tell me about Lord Hanuman</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">What is Moksha?</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">Describe the Mahabharata war</div>
+      </div>
+
+      <!-- Input -->
+      <div class="chat-input-area">
+        <div class="chat-input-wrap">
+          <textarea id="chat-input" placeholder="Ask about Vedas, deities, rituals, philosophy…" rows="1"></textarea>
+          <button class="input-clear" id="input-clear" onclick="clearInput()">✕</button>
+        </div>
+        <button id="send-btn" onclick="sendMessage()" title="Send">➤</button>
+      </div>
+
+      <!-- API key setup -->
+      <div class="api-setup">
+        <p>
+          🔑 Enter your <strong>Groq API key</strong> (free at <a href="https://console.groq.com" target="_blank" style="color:var(--saffron)">console.groq.com</a>).
+          Keys are stored only in your browser's local storage. Once entered, you don't need to re-enter them. 
+        </p>
+        <div class="api-input-row">
+          <input type="password" class="api-key-input" id="groq-key" placeholder="Groq API Key (gsk_...)" />
+          <button class="api-save-btn" onclick="saveKey('groq')">Save Groq</button>
+        </div>
+
       </div>
     </div>
   </div>
-
-  <!-- Suggestion chips -->
-  <div class="guru-chips" id="guru-chips">
-    <button class="suggestion-chip" onclick="sendSuggestion(this)">Meaning of OM?</button>
-    <button class="suggestion-chip" onclick="sendSuggestion(this)">Bhagavad Gita teachings</button>
-    <button class="suggestion-chip" onclick="sendSuggestion(this)">The 4 Vedas</button>
-    <button class="suggestion-chip" onclick="sendSuggestion(this)">What is Moksha?</button>
-    <button class="suggestion-chip" onclick="sendSuggestion(this)">Lord Hanuman</button>
-    <button class="suggestion-chip" onclick="sendSuggestion(this)">Ashta Dikpalakas</button>
-  </div>
-
-  <!-- Input row -->
-  <div class="guru-input-row">
-    <textarea id="chat-input" rows="1" placeholder="Ask about Vedas, deities, rituals, philosophy…"
-      onkeydown="guruKeydown(event)" oninput="guruAutoGrow(this)"></textarea>
-    <button id="send-btn" onclick="sendMessage()" title="Send">
-      <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-    </button>
-    <button class="input-clear" id="input-clear" onclick="clearInput()" style="display:none"></button>
-  </div>
-  <div class="guru-footer-note">Sacred knowledge · Powered by Groq AI</div>
-</div>
-
-<!-- API Key Modal -->
-<div id="guru-key-modal" style="display:none;">
-  <div class="guru-key-box">
-    <button class="guru-modal-x" onclick="closeGuruKeyModal()" title="Close">✕</button>
-    <h3>🔑 Connect Groq AI</h3>
-    <p class="guru-key-sub">
-      Get a <strong style="color:var(--gold-pale)">free Groq API key</strong> at
-      <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a> — no credit card needed. Your key is saved only in your browser.
-    </p>
-    <div class="guru-saved-badge" id="guru-saved-badge" style="display:none;">✅ Key saved — Guru is connected</div>
-    <input id="guru-key-input" type="password" placeholder="gsk_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" />
-    <div class="guru-key-btns">
-      <button id="guru-key-save" onclick="saveGuruKey()">Connect &amp; Start</button>
-      <button id="guru-key-skip" onclick="closeGuruKeyModal()">Close</button>
-    </div>
-    <p class="guru-modal-note">Key stored locally in your browser · Never sent to any server except Groq</p>
-  </div>
-</div>
+</section>
 
 
 <!-- ═══════════════ FLOATING CONTACT BUTTONS ═══════════════ -->
@@ -4280,7 +4333,7 @@ footer {
           <li><a href="#philosophy">Philosophy</a></li>
           <li><a href="#misconceptions">Myths vs Facts</a></li>
           <li><a href="#podcasts">Podcasts</a></li>
-          <li><a href="#chatbot-section" onclick="openGuruChat()">AI Guru</a></li>
+          <li><a href="aiguru.html" target="_blank">AI Guru</a></li>
           <li><a href="#texts">All Texts</a></li>
         </ul>
       </div>
@@ -4667,105 +4720,7 @@ let chatHistory = [];
 const keys = { groq: '' };
 function loadKeys() {
   keys.groq = localStorage.getItem('sd_groq_key') || '';
-  var badge = document.getElementById('guru-saved-badge');
-  var inp = document.getElementById('guru-key-input');
-  if (keys.groq) {
-    if (badge) badge.style.display = 'block';
-    if (inp) inp.value = keys.groq;
-  }
-}
-
-/* ── Guru FAB / Panel ── */
-function toggleGuruChat() {
-  var fab  = document.getElementById('guru-fab');
-  var chat = document.getElementById('guru-chat');
-  var open = chat.classList.toggle('open');
-  fab.classList.toggle('open', open);
-  if (open) { var inp = document.getElementById('chat-input'); if (inp) inp.focus(); }
-}
-
-function openGuruChat() {
-  var fab  = document.getElementById('guru-fab');
-  var chat = document.getElementById('guru-chat');
-  if (!chat.classList.contains('open')) {
-    chat.classList.add('open');
-    fab.classList.add('open');
-    setTimeout(function() { var inp = document.getElementById('chat-input'); if (inp) inp.focus(); }, 350);
-  }
-  fab.scrollIntoView({ behavior: 'smooth', block: 'end' });
-}
-
-function guruAutoGrow(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 90) + 'px';
-}
-
-function guruKeydown(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-}
-
-/* ── Model switcher ── */
-var currentGuruModel = 'groq:llama-3.3-70b-versatile';
-function toggleGuruSwitcher(e) {
-  e.stopPropagation();
-  var menu = document.getElementById('guru-switcher-menu');
-  if (!menu) return;
-  var isOpen = menu.classList.toggle('open');
-  if (isOpen) {
-    setTimeout(function() { document.addEventListener('click', closeGuruSwitcherOnce); }, 10);
-  }
-}
-function closeGuruSwitcherOnce() {
-  var menu = document.getElementById('guru-switcher-menu');
-  if (menu) menu.classList.remove('open');
-  document.removeEventListener('click', closeGuruSwitcherOnce);
-}
-function switchGuruModel(modelVal, label, btn) {
-  currentGuruModel = modelVal;
-  var badge = document.getElementById('guru-badge');
-  if (badge) badge.textContent = label;
-  var items = document.querySelectorAll('.guru-sw-item');
-  for (var i = 0; i < items.length; i++) items[i].classList.remove('active');
-  if (btn) btn.classList.add('active');
-  closeGuruSwitcherOnce();
-}
-
-/* ── Key modal ── */
-function openGuruKeyModal() {
-  closeGuruSwitcherOnce();
-  loadKeys();
-  var modal = document.getElementById('guru-key-modal');
-  if (modal) modal.style.display = 'flex';
-}
-function closeGuruKeyModal() {
-  var modal = document.getElementById('guru-key-modal');
-  if (modal) modal.style.display = 'none';
-}
-function saveGuruKey() {
-  var inp = document.getElementById('guru-key-input');
-  if (!inp) return;
-  var val = inp.value.trim();
-  if (!val || !val.startsWith('gsk_') || val.length < 10) {
-    inp.classList.add('error');
-    setTimeout(function() { inp.classList.remove('error'); }, 1200);
-    return;
-  }
-  localStorage.setItem('sd_groq_key', val);
-  keys.groq = val;
-  var badge = document.getElementById('guru-saved-badge');
-  if (badge) badge.style.display = 'block';
-  showNotification('🔑 Groq key saved! Guru is ready.');
-  closeGuruKeyModal();
-  // add greeting if no messages yet besides welcome
-  var msgs = document.getElementById('chat-messages');
-  if (msgs && msgs.children.length <= 1) {
-    addMessage('bot', '🙏 Connected to Groq AI! I am ready to answer your questions about Sanatan Dharma. Ask me anything!');
-  }
-}
-
-/* Keep old saveKey as alias so nothing breaks */
-function saveKey(provider) {
-  if (provider === 'groq') saveGuruKey();
+  if (keys.groq) document.getElementById('groq-key').value = '●'.repeat(20);
 }
 function saveKey(provider) {
   const inputEl = document.getElementById(provider + '-key');
@@ -4881,17 +4836,13 @@ async function sendMessage() {
   const userMsg = input.value.trim();
   if (!userMsg) return;
   input.value = '';
-  const clearBtn = document.getElementById('input-clear');
-  if (clearBtn) clearBtn.classList.remove('visible');
+  document.getElementById('input-clear').classList.remove('visible');
   input.style.height = 'auto';
   document.getElementById('send-btn').disabled = true;
   addMessage('user', userMsg);
   chatHistory.push({ role: 'user', content: userMsg });
-  // hide chips after first send
-  var chips = document.getElementById('guru-chips');
-  if (chips) chips.style.display = 'none';
   addTyping();
-  const modelVal = currentGuruModel;
+  const modelVal = document.getElementById('model-select').value;
   const [provider, ...modelParts] = modelVal.split(':');
   const modelName = modelParts.join(':');
   const useWebSearch = document.getElementById('web-search-cb').checked;
@@ -4929,9 +4880,9 @@ async function sendMessage() {
     removeTyping();
     let errMsg = err.message || 'An error occurred.';
     if (errMsg.includes('API key not set') || errMsg.includes('not set')) {
-      errMsg = `🔑 No Groq API key found. Click the badge in the chat header → "Manage Groq API Key" to connect.`;
+      errMsg = `🔑 Please enter your Groq API key below to use the AI Guru.`;
     }
-    addMessage('bot', `🙏 Apologies, dear seeker: ${errMsg}`);
+    addMessage('bot', `🙏 Apologies, dear seeker: ${errMsg}\n\nPlease ensure your API key is saved below.`);
   } finally {
     document.getElementById('send-btn').disabled = false;
     input.focus();
@@ -5238,7 +5189,15 @@ function buildRAGContext(query) {
   return { context: `\n\n[Sacred Text Passages — use these as primary reference, cite the source]:\n${context}`, ragChunks: chunks };
 }
 
-// Auto-resize is handled inline by guruAutoGrow / guruKeydown
+// Auto-resize textarea & show clear button
+document.getElementById('chat-input').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 140) + 'px';
+  document.getElementById('input-clear').classList.toggle('visible', this.value.length > 0);
+});
+document.getElementById('chat-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
 /* ═══════════════════════════════════════════════════════
    CANVAS STARFIELD
 ═══════════════════════════════════════════════════════ */
@@ -5649,7 +5608,7 @@ function computeFestivalsForYear(year) {
   add('Nag Panchami','🐍','Worship of the divine serpent — offerings to Naga deities',
     findTithi(4, new Date(year, 6, 15)));
   /* ── 11. Raksha Bandhan — Shravana Purnima ── */
-  add('Raksha Bandhan','🌺','Festival of siblings — sister ties a rakhi on her brother',
+  add('Raksha Bandhan','🪢','Festival of siblings — sister ties a rakhi on her brother',
     findPurnima(new Date(year, 6, 20)));
   /* ── 12. Janmashtami — Krishna Ashtami (tithiIdx=22, Krishna Paksha Ashtami of Bhadrapada) ── */
   // Bhadrapada Krishna Ashtami = elongation index 22
@@ -6791,14 +6750,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderFestivals();
   buildFamilyTree();
   initMandala();
-  // Show key modal on first load if no Groq key saved
-  var savedKey = localStorage.getItem('sd_groq_key') || '';
-  if (!savedKey) {
-    setTimeout(function() {
-      var modal = document.getElementById('guru-key-modal');
-      if (modal) modal.style.display = 'flex';
-    }, 1200);
-  }
   // Refresh panchang every 10 minutes (tithi can change during the day)
   setInterval(renderHinduCalendar, 600000);
 });
