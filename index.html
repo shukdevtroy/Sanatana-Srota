@@ -1387,6 +1387,72 @@ section {
   border-radius: 99px;
   transition: width 0.3s ease;
 }
+/* RAG Active + Extracting Indicator */
+#rag-status-bar.visible { display: flex; }
+#rag-status-bar.extracting {
+  background: rgba(75,0,130,0.35);
+  border-bottom-color: var(--saffron);
+  animation: ragPulse 1.2s ease-in-out infinite;
+}
+@keyframes ragPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,107,0,0.0); }
+  50%      { box-shadow: 0 2px 18px 0 rgba(255,107,0,0.35); }
+}
+.rag-badge.extracting {
+  background: linear-gradient(135deg, var(--saffron), var(--gold));
+  color: #000;
+  animation: ragBadgePulse 0.9s steps(2) infinite;
+}
+@keyframes ragBadgePulse {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.6; }
+}
+#rag-extract-banner {
+  display: none;
+  position: fixed;
+  bottom: 24px; left: 50%; transform: translateX(-50%);
+  z-index: 99998;
+  background: linear-gradient(135deg, rgba(75,0,130,0.97), rgba(30,5,0,0.97));
+  border: 1px solid var(--saffron);
+  border-radius: 8px;
+  padding: 14px 26px;
+  box-shadow: 0 4px 32px rgba(255,107,0,0.4);
+  min-width: 320px; max-width: 90vw;
+  font-family: var(--font-heading);
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+#rag-extract-banner.show { display: block; animation: bannerSlideUp 0.4s ease; }
+@keyframes bannerSlideUp {
+  from { opacity:0; transform: translateX(-50%) translateY(20px); }
+  to   { opacity:1; transform: translateX(-50%) translateY(0); }
+}
+.rag-banner-title {
+  font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--saffron-light); margin-bottom: 6px;
+}
+.rag-banner-book {
+  font-size: 13px; color: var(--gold-pale); margin-bottom: 10px;
+  font-family: var(--font-display); font-size: 12px;
+}
+.rag-banner-chunks {
+  font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: #c084fc; margin-bottom: 8px; min-height: 16px;
+  transition: color 0.2s;
+}
+.rag-banner-bar-track {
+  width: 100%; height: 6px;
+  background: rgba(212,160,23,0.15);
+  border-radius: 99px; overflow: hidden;
+  border: 1px solid rgba(212,160,23,0.2);
+}
+.rag-banner-bar-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, #4B0082, var(--saffron), var(--gold));
+  border-radius: 99px;
+  transition: width 0.25s ease;
+  box-shadow: 0 0 10px rgba(255,107,0,0.6);
+}
 /* RAG source block styling */
 .rag-context-block {
   background: rgba(75,0,130,0.1);
@@ -3250,6 +3316,16 @@ footer {
 <!-- ═══════════════ PARTICLES ═══════════════ -->
 <div id="particles-container"></div>
 
+<!-- RAG Extraction Live Banner -->
+<div id="rag-extract-banner">
+  <div class="rag-banner-title">⚡ RAG Active — Extracting Sacred Text</div>
+  <div class="rag-banner-book" id="rag-banner-book-name"></div>
+  <div class="rag-banner-chunks" id="rag-banner-chunks-text">Initialising…</div>
+  <div class="rag-banner-bar-track">
+    <div class="rag-banner-bar-fill" id="rag-banner-bar"></div>
+  </div>
+</div>
+
 <!-- ═══════════════ NAVIGATION ═══════════════ -->
 <nav id="main-nav">
   <a href="#hero" class="nav-brand">
@@ -3268,7 +3344,7 @@ footer {
     <li><a href="#shloka-section">Daily Shloka</a></li>
     <li><a href="#pilgrimage-map">Sacred Sites</a></li>
     <li><a href="#history-timeline">Timeline</a></li>
-    <li><a href="aiguru.html" class="nav-chat-btn" target="_blank">AI Guru</a></li>
+    <li><a href="aiguru.html" class="nav-chat-btn">AI Guru</a></li>
   </ul>
 </nav>
 
@@ -3338,7 +3414,7 @@ footer {
 
   <div class="hero-cta-group">
     <a href="#texts" class="btn-primary">📖 Explore Sacred Texts</a>
-    <a href="aiguru.html" class="btn-secondary" target="_blank">🤖 Consult AI Guru</a>
+    <a href="aiguru.html" class="btn-secondary">🤖 Consult AI Guru</a>
   </div>
 
   <div class="scroll-hint">
@@ -4333,7 +4409,7 @@ footer {
           <li><a href="#philosophy">Philosophy</a></li>
           <li><a href="#misconceptions">Myths vs Facts</a></li>
           <li><a href="#podcasts">Podcasts</a></li>
-          <li><a href="aiguru.html" target="_blank">AI Guru</a></li>
+          <li><a href="aiguru.html">AI Guru</a></li>
           <li><a href="#texts">All Texts</a></li>
         </ul>
       </div>
@@ -5022,25 +5098,35 @@ async function indexBook(source, bookTitle) {
   // Remove existing chunks for this book first
   RAG.index = RAG.index.filter(c => c.bookTitle !== bookTitle);
 
-  showRAGProgress();
+  showRAGProgress(bookTitle);
   setRAGProgress(0);
-  updateRAGStatusText(`Extracting text from "${bookTitle}"…`);
+  updateRAGStatusText(`⚡ Extracting text from "${bookTitle}"…`);
 
   try {
     const rawText = await extractPDFText(source);
     const chunks = chunkText(rawText);
-    updateRAGStatusText(`Indexing ${chunks.length} chunks from "${bookTitle}"…`);
+
+    // Update banner with chunk count live
+    const chunksEl = document.getElementById('rag-banner-chunks-text');
+    if (chunksEl) chunksEl.textContent = `Indexing ${chunks.length} chunks…`;
+    updateRAGStatusText(`⚡ Indexing ${chunks.length} chunks from "${bookTitle}"…`);
 
     chunks.forEach((text, idx) => {
       const tokens = tokenize(text);
       if (tokens.length < 10) return; // skip near-empty chunks
       const tf = computeTF(tokens);
       RAG.index.push({ bookTitle, chunkIndex: idx, text, tf });
+      // Live-update banner every 50 chunks
+      if (idx % 50 === 0 && chunksEl) {
+        chunksEl.textContent = `Indexed ${idx} / ${chunks.length} chunks…`;
+      }
     });
 
     rebuildIDF();
     RAG.books[bookTitle] = { chunkCount: chunks.length };
     updateRAGUI();
+    // Final banner update before hiding
+    if (chunksEl) chunksEl.textContent = `✅ ${RAG.index.filter(c=>c.bookTitle===bookTitle).length} chunks indexed!`;
     showNotification(`📚 "${bookTitle}" indexed — ${RAG.index.filter(c=>c.bookTitle===bookTitle).length} chunks ready`);
     return true;
   } catch(e) {
@@ -5049,7 +5135,7 @@ async function indexBook(source, bookTitle) {
   } finally {
     hideRAGProgress();
     updateRAGStatusText(Object.keys(RAG.books).length
-      ? `${RAG.index.length} chunks from ${Object.keys(RAG.books).length} text(s) indexed`
+      ? `✅ ${RAG.index.length} chunks from ${Object.keys(RAG.books).length} text(s) indexed`
       : 'No texts indexed yet');
   }
 }
@@ -5065,6 +5151,12 @@ async function indexBookForRAG(filename, title) {
   if (!RAG.enabled) {
     document.getElementById('rag-cb').checked = true;
     toggleRAG(true);
+  }
+
+  // Scroll to the RAG status bar so user can see it's active
+  const ragBar = document.getElementById('rag-status-bar');
+  if (ragBar) {
+    ragBar.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   // HTTP/HTTPS server (GitHub Pages, localhost, etc.) — load directly
@@ -5111,15 +5203,43 @@ function toggleRAG(enabled) {
 /* --- UI helpers ---------------------------------------- */
 function setRAGProgress(pct) {
   document.getElementById('rag-progress-bar').style.width = pct + '%';
+  const bannerBar = document.getElementById('rag-banner-bar');
+  if (bannerBar) bannerBar.style.width = pct + '%';
 }
-function showRAGProgress() {
+function showRAGProgress(bookTitle) {
   document.getElementById('rag-progress').classList.add('visible');
   document.getElementById('rag-index-btn').disabled = true;
+  // Show the floating extraction banner
+  const banner = document.getElementById('rag-extract-banner');
+  const bookName = document.getElementById('rag-banner-book-name');
+  const chunksText = document.getElementById('rag-banner-chunks-text');
+  if (banner) {
+    if (bookName) bookName.textContent = '📖 ' + (bookTitle || 'Sacred Text');
+    if (chunksText) chunksText.textContent = 'Reading PDF pages…';
+    banner.classList.add('show');
+  }
+  // Show & pulse the RAG status bar
+  const statusBar = document.getElementById('rag-status-bar');
+  if (statusBar) {
+    statusBar.classList.add('visible', 'extracting');
+    const badge = statusBar.querySelector('.rag-badge');
+    if (badge) badge.classList.add('extracting');
+  }
 }
 function hideRAGProgress() {
   document.getElementById('rag-progress').classList.remove('visible');
   document.getElementById('rag-index-btn').disabled = false;
   setRAGProgress(0);
+  // Hide banner
+  const banner = document.getElementById('rag-extract-banner');
+  if (banner) banner.classList.remove('show');
+  // Stop pulsing the RAG status bar
+  const statusBar = document.getElementById('rag-status-bar');
+  if (statusBar) {
+    statusBar.classList.remove('extracting');
+    const badge = statusBar.querySelector('.rag-badge');
+    if (badge) badge.classList.remove('extracting');
+  }
 }
 function updateRAGStatusText(text) {
   document.getElementById('rag-status-text').textContent = text;
