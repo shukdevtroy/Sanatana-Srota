@@ -2808,15 +2808,6 @@ footer {
 <!-- ═══════════════ PARTICLES ═══════════════ -->
 <div id="particles-container"></div>
 
-<!-- RAG Extraction Live Banner -->
-<div id="rag-extract-banner">
-  <div class="rag-banner-title">⚡ RAG Active — Extracting Sacred Text</div>
-  <div class="rag-banner-book" id="rag-banner-book-name"></div>
-  <div class="rag-banner-chunks" id="rag-banner-chunks-text">Initialising…</div>
-  <div class="rag-banner-bar-track">
-    <div class="rag-banner-bar-fill" id="rag-banner-bar"></div>
-  </div>
-</div>
 
 <!-- ═══════════════ NAVIGATION ═══════════════ -->
 <nav id="main-nav">
@@ -4182,7 +4173,7 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closePDFModal();
 });
 /* ═══════════════════════════════════════════════════════
-   UTILITIES & RAG ENGINE
+   UTILITIES
 ═══════════════════════════════════════════════════════ */
 function showNotification(msg) {
   const n = document.createElement('div');
@@ -4192,230 +4183,14 @@ function showNotification(msg) {
   setTimeout(() => n.remove(), 3000);
 }
 
-/* ═══════════════════════════════════════════════════════
-   RAG ENGINE — TF-IDF + COSINE SIMILARITY
-═══════════════════════════════════════════════════════ */
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-const RAG = {
-  enabled: false,
-  index: [],
-  idf: {},
-  books: {},
-  stopWords: new Set(['the','a','an','and','or','but','in','on','at','to','for','of','with','by','from','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','shall','can','not','this','that','these','those','it','its','they','them','their','we','us','our','you','your','he','she','him','her','his','i','me','my','so','as','if','then','than','when','where','who','which','what','how','all','also','more','about','up','out','no','into','through','after','before','between','same','other','such','each','both','over','under','again','further','only','own','too','very','just','most','some','any','there','here'])
-};
-
-function tokenize(text) {
-  return text.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 2 && !RAG.stopWords.has(w));
-}
-function computeTF(tokens) {
-  const tf = {};
-  tokens.forEach(t => { tf[t] = (tf[t] || 0) + 1; });
-  const len = tokens.length || 1;
-  Object.keys(tf).forEach(t => { tf[t] /= len; });
-  return tf;
-}
-function rebuildIDF() {
-  const df = {};
-  RAG.index.forEach(chunk => { Object.keys(chunk.tf).forEach(t => { df[t] = (df[t] || 0) + 1; }); });
-  const N = RAG.index.length || 1;
-  RAG.idf = {};
-  Object.keys(df).forEach(t => { RAG.idf[t] = Math.log((N + 1) / (df[t] + 1)) + 1; });
-}
-function tfidfVector(tf) {
-  const vec = {};
-  Object.keys(tf).forEach(t => { vec[t] = tf[t] * (RAG.idf[t] || 1); });
-  return vec;
-}
-function cosine(vecA, vecB) {
-  const keysA = Object.keys(vecA);
-  let dot = 0, normA = 0, normB = 0;
-  keysA.forEach(t => { dot += (vecA[t] || 0) * (vecB[t] || 0); normA += vecA[t] ** 2; });
-  Object.values(vecB).forEach(v => { normB += v ** 2; });
-  if (!normA || !normB) return 0;
-  return dot / (Math.sqrt(normA) * Math.sqrt(normB));
-}
-function retrieveChunks(query, topK = 4) {
-  if (!RAG.index.length) return [];
-  const qVec = tfidfVector(computeTF(tokenize(query)));
-  const scored = RAG.index.map(chunk => ({ ...chunk, score: cosine(qVec, tfidfVector(chunk.tf)) }));
-  scored.sort((a, b) => b.score - a.score);
-  return scored.slice(0, topK).filter(c => c.score > 0);
-}
-async function extractPDFText(source) {
-  let pdfDoc;
-  if (source instanceof File) {
-    const ab = await source.arrayBuffer();
-    pdfDoc = await pdfjsLib.getDocument({ data: ab }).promise;
-  } else {
-    pdfDoc = await pdfjsLib.getDocument(source).promise;
-  }
-  const numPages = pdfDoc.numPages;
-  const texts = [];
-  for (let p = 1; p <= numPages; p++) {
-    const page = await pdfDoc.getPage(p);
-    const content = await page.getTextContent();
-    texts.push(content.items.map(i => i.str).join(' '));
-    setRAGProgress(Math.round((p / numPages) * 100));
-  }
-  return texts.join('\n');
-}
-function chunkText(text, chunkSize = 400, overlap = 80) {
-  const words = text.split(/\s+/).filter(Boolean);
-  const chunks = [];
-  let i = 0;
-  while (i < words.length) { chunks.push(words.slice(i, i + chunkSize).join(' ')); i += (chunkSize - overlap); }
-  return chunks;
-}
-async function indexBook(source, bookTitle) {
-  RAG.index = RAG.index.filter(c => c.bookTitle !== bookTitle);
-  showRAGProgress(bookTitle);
-  setRAGProgress(0);
-  updateRAGStatusText(`⚡ Extracting text from "${bookTitle}"…`);
+/* --- "Index for AI" — saves book to localStorage and opens AI Guru --- */
+function indexBookForRAG(filename, title) {
+  // Store the pending book so aiguru.html picks it up and auto-indexes it
   try {
-    const rawText = await extractPDFText(source);
-    const chunks = chunkText(rawText);
-    const chunksEl = document.getElementById('rag-banner-chunks-text');
-    if (chunksEl) chunksEl.textContent = `Indexing ${chunks.length} chunks…`;
-    updateRAGStatusText(`⚡ Indexing ${chunks.length} chunks from "${bookTitle}"…`);
-    chunks.forEach((text, idx) => {
-      const tokens = tokenize(text);
-      if (tokens.length < 10) return;
-      const tf = computeTF(tokens);
-      RAG.index.push({ bookTitle, chunkIndex: idx, text, tf });
-      if (idx % 50 === 0 && chunksEl) chunksEl.textContent = `Indexed ${idx} / ${chunks.length} chunks…`;
-    });
-    rebuildIDF();
-    RAG.books[bookTitle] = { chunkCount: chunks.length };
-    updateRAGUI();
-    if (chunksEl) chunksEl.textContent = `✅ ${RAG.index.filter(c=>c.bookTitle===bookTitle).length} chunks indexed!`;
-    showNotification(`📚 "${bookTitle}" indexed — ${RAG.index.filter(c=>c.bookTitle===bookTitle).length} chunks ready`);
-    return true;
-  } catch(e) {
-    showNotification(`⚠️ Could not index "${bookTitle}": ${e.message}`);
-    return false;
-  } finally {
-    hideRAGProgress();
-    updateRAGStatusText(Object.keys(RAG.books).length
-      ? `✅ ${RAG.index.length} chunks from ${Object.keys(RAG.books).length} text(s) indexed`
-      : 'No texts indexed yet');
-  }
-}
-async function indexBookForRAG(filename, title) {
-  if (!RAG.enabled) { document.getElementById('rag-cb').checked = true; toggleRAG(true); }
-  const ragBar = document.getElementById('rag-status-bar');
-  if (ragBar) ragBar.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  if (location.protocol !== 'file:') {
-    await indexBook(filename, title);
-    return;
-  }
-  window._pendingRAGBookTitle = title;
-  let picker = document.getElementById('_rag-book-picker');
-  if (!picker) {
-    picker = document.createElement('input');
-    picker.type = 'file'; picker.accept = '.pdf';
-    picker.id = '_rag-book-picker'; picker.style.display = 'none';
-    document.body.appendChild(picker);
-    picker.addEventListener('change', function () {
-      if (!this.files || !this.files[0]) return;
-      const file = this.files[0];
-      const t = window._pendingRAGBookTitle || file.name.replace(/\.pdf$/i, '');
-      window._pendingRAGBookTitle = null;
-      this.value = '';
-      indexBook(file, t);
-    });
-  }
-  showNotification(`📂 Local mode — select "${filename}" from your folder`);
-  picker.click();
-}
-function toggleRAG(enabled) {
-  RAG.enabled = enabled;
-  document.getElementById('rag-status-bar').classList.toggle('visible', enabled);
-  if (enabled && Object.keys(RAG.books).length === 0) {
-    updateRAGStatusText('No texts indexed yet. Use "🧠 Index for AI" on a book card.');
-  }
-}
-function setRAGProgress(pct) {
-  document.getElementById('rag-progress-bar').style.width = pct + '%';
-  const b = document.getElementById('rag-banner-bar'); if (b) b.style.width = pct + '%';
-}
-function showRAGProgress(bookTitle) {
-  document.getElementById('rag-progress').classList.add('visible');
-  document.getElementById('rag-index-btn').disabled = true;
-  const banner = document.getElementById('rag-extract-banner');
-  const bookName = document.getElementById('rag-banner-book-name');
-  const chunksText = document.getElementById('rag-banner-chunks-text');
-  if (banner) {
-    if (bookName) bookName.textContent = '📖 ' + (bookTitle || 'Sacred Text');
-    if (chunksText) chunksText.textContent = 'Reading PDF pages…';
-    banner.classList.add('show');
-  }
-  const statusBar = document.getElementById('rag-status-bar');
-  if (statusBar) {
-    statusBar.classList.add('visible', 'extracting');
-    const badge = statusBar.querySelector('.rag-badge');
-    if (badge) badge.classList.add('extracting');
-  }
-}
-function hideRAGProgress() {
-  document.getElementById('rag-progress').classList.remove('visible');
-  document.getElementById('rag-index-btn').disabled = false;
-  setRAGProgress(0);
-  const banner = document.getElementById('rag-extract-banner');
-  if (banner) banner.classList.remove('show');
-  const statusBar = document.getElementById('rag-status-bar');
-  if (statusBar) {
-    statusBar.classList.remove('extracting');
-    const badge = statusBar.querySelector('.rag-badge');
-    if (badge) badge.classList.remove('extracting');
-  }
-}
-function updateRAGStatusText(text) { document.getElementById('rag-status-text').textContent = text; }
-function updateRAGUI() {
-  const pills = document.getElementById('rag-book-pills');
-  pills.innerHTML = '';
-  Object.keys(RAG.books).forEach(title => {
-    const pill = document.createElement('span');
-    pill.className = 'rag-pill active';
-    pill.innerHTML = `📖 ${title} <span class="pill-x" onclick="removeRAGBook('${title}',event)">✕</span>`;
-    pills.appendChild(pill);
-  });
-}
-function removeRAGBook(title, e) {
-  e.stopPropagation();
-  RAG.index = RAG.index.filter(c => c.bookTitle !== title);
-  delete RAG.books[title];
-  rebuildIDF(); updateRAGUI();
-  updateRAGStatusText(Object.keys(RAG.books).length
-    ? `${RAG.index.length} chunks from ${Object.keys(RAG.books).length} text(s) indexed`
-    : 'No texts indexed yet');
-  showNotification(`🗑️ "${title}" removed from RAG index`);
-}
-function openRAGIndexModal() {
-  const container = document.getElementById('rag-modal-books');
-  container.innerHTML = '';
-  BOOKS.forEach(book => {
-    const indexed = !!RAG.books[book.title];
-    const btn = document.createElement('button');
-    btn.style.cssText = `background:${indexed ? 'rgba(75,0,130,0.25)' : 'var(--bg-card)'};border:1px solid ${indexed ? 'rgba(155,89,212,0.5)' : 'var(--border-gold)'};color:${indexed ? '#c084fc' : 'var(--text-secondary)'};padding:8px 12px;border-radius:4px;font-family:var(--font-heading);font-size:10px;letter-spacing:0.1em;cursor:pointer;text-align:left;transition:all 0.2s;`;
-    btn.innerHTML = `${book.symbol} ${book.title}${indexed ? ' ✓' : ''}`;
-    btn.onclick = async () => { closeRAGModal(); await indexBookForRAG(book.file, book.title); };
-    container.appendChild(btn);
-  });
-  document.getElementById('rag-modal-overlay').style.display = 'block';
-  document.getElementById('rag-modal').style.display = 'block';
-}
-function closeRAGModal() {
-  document.getElementById('rag-modal-overlay').style.display = 'none';
-  document.getElementById('rag-modal').style.display = 'none';
-}
-function handleRAGFileSelect(input) {
-  if (!input.files || !input.files[0]) return;
-  const file = input.files[0];
-  const title = file.name.replace(/\.pdf$/i, '');
-  document.getElementById('rag-file-label').textContent = file.name;
-  closeRAGModal();
-  indexBook(file, title);
+    localStorage.setItem('sd_pending_rag_book', JSON.stringify({ file: filename, title: title }));
+  } catch(e) {}
+  showNotification('📚 Opening AI Guru to index "' + title + '"…');
+  setTimeout(function() { window.location.href = 'aiguru.html'; }, 600);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -5982,26 +5757,6 @@ function switchPodcastTab(tab, btn) {
 }
 </script>
 
-<!-- ═══════════════ RAG INDEX MODAL ═══════════════ -->
-<div id="rag-modal-overlay" onclick="closeRAGModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:10000;backdrop-filter:blur(4px);"></div>
-<div id="rag-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10001;background:var(--bg-panel);border:1px solid var(--border-gold);border-radius:8px;padding:32px;max-width:520px;width:90%;max-height:80vh;overflow-y:auto;">
-  <div style="font-family:var(--font-display);font-size:18px;color:var(--gold-bright);margin-bottom:6px;">📚 Index Sacred Texts for RAG</div>
-  <div style="font-family:var(--font-heading);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:20px;">Select PDFs to index — the AI will retrieve relevant passages when answering</div>
-
-  <div style="font-family:var(--font-heading);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--saffron);margin-bottom:10px;">From the Library</div>
-  <div id="rag-modal-books" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;"></div>
-
-  <div style="font-family:var(--font-heading);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--saffron);margin-bottom:10px;">Upload Your Own PDF</div>
-  <label style="display:flex;align-items:center;gap:10px;background:var(--bg-card);border:1px dashed var(--border-gold);border-radius:4px;padding:12px 16px;cursor:pointer;color:var(--text-secondary);font-family:var(--font-heading);font-size:11px;">
-    <span>📂</span>
-    <span id="rag-file-label">Choose a PDF file…</span>
-    <input type="file" id="rag-file-input" accept=".pdf" style="display:none;" onchange="handleRAGFileSelect(this)" />
-  </label>
-
-  <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;">
-    <button onclick="closeRAGModal()" style="background:transparent;border:1px solid var(--border-gold);color:var(--text-muted);padding:8px 20px;border-radius:3px;font-family:var(--font-heading);font-size:11px;cursor:pointer;">Cancel</button>
-  </div>
-</div>
 
 <!-- ═══════════════ DEITY IMAGE POPUP ═══════════════ -->
 <div id="deity-popup-overlay" onclick="closeDeityPopup()"></div>
