@@ -1427,6 +1427,21 @@ function buildRAGContext(query) {
 document.addEventListener('DOMContentLoaded', function() {
   loadKeys();
   document.getElementById('init-time').textContent = getTime();
+
+  // Auto-index a book if redirected from index.html via "Index for AI"
+  try {
+    const pending = localStorage.getItem('sd_pending_rag_book');
+    if (pending) {
+      localStorage.removeItem('sd_pending_rag_book');
+      const book = JSON.parse(pending);
+      if (book && book.file && book.title) {
+        // Small delay so the page fully renders first
+        setTimeout(function() {
+          indexBookForRAG(book.file, book.title);
+        }, 800);
+      }
+    }
+  } catch(e) {}
 });
 </script>
 </body>
