@@ -1179,564 +1179,58 @@ section {
   font-style: italic;
 }
 /* ═══════════════════════════════════════════════════════
-   CHATBOT SECTION
+   AI GURU CTA SECTION
 ═══════════════════════════════════════════════════════ */
 #chatbot-section {
   background: radial-gradient(ellipse at 50% 50%, rgba(212,160,23,0.04) 0%, transparent 70%);
 }
-.chatbot-wrapper {
-  max-width: 920px;
-  margin: 0 auto;
-}
-.chatbot-container {
-  background: var(--bg-panel);
+.ai-guru-cta-wrapper { max-width: 720px; margin: 0 auto; text-align: center; }
+.ai-guru-cta-card {
+  background: linear-gradient(145deg, var(--bg-panel), var(--bg-card));
   border: 1px solid var(--border-gold);
-  border-radius: 8px;
+  border-radius: 12px;
+  padding: 52px 40px;
+  position: relative;
   overflow: hidden;
-  box-shadow: var(--shadow-gold), 0 0 0 1px rgba(255,107,0,0.05);
+  box-shadow: var(--shadow-gold);
 }
-/* Header */
-.chat-header {
-  background: linear-gradient(135deg, rgba(255,107,0,0.12), rgba(212,160,23,0.08));
-  border-bottom: 1px solid var(--border-gold);
-  padding: 18px 24px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
+.ai-guru-cta-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--saffron), var(--gold-bright), var(--saffron));
 }
-.chat-avatar {
-  width: 48px; height: 48px;
+.ai-guru-avatar {
+  width: 80px; height: 80px;
   background: linear-gradient(135deg, var(--saffron), var(--gold));
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  flex-shrink: 0;
-  box-shadow: 0 0 16px rgba(255,107,0,0.4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 38px;
+  margin: 0 auto 24px;
+  box-shadow: 0 0 32px rgba(255,107,0,0.5);
   animation: avatarGlow 3s ease-in-out infinite;
 }
 @keyframes avatarGlow {
-  0%,100% { box-shadow: 0 0 16px rgba(255,107,0,0.4); }
-  50%      { box-shadow: 0 0 30px rgba(255,107,0,0.7); }
+  0%,100% { box-shadow: 0 0 24px rgba(255,107,0,0.4); }
+  50%      { box-shadow: 0 0 48px rgba(255,107,0,0.75); }
 }
-.chat-header-info { flex: 1; }
-.chat-bot-name {
-  font-family: var(--font-heading);
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--gold-pale);
-  letter-spacing: 0.05em;
+.ai-guru-cta-title { font-family: var(--font-display); font-size: clamp(20px,3vw,28px); color: var(--gold-pale); margin-bottom: 14px; }
+.ai-guru-cta-desc { font-family: var(--font-body); font-size: 17px; color: var(--text-secondary); line-height: 1.8; max-width: 540px; margin: 0 auto 32px; }
+.ai-guru-features { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 36px; }
+.ai-guru-feature-pill {
+  background: rgba(255,107,0,0.1); border: 1px solid rgba(255,107,0,0.25);
+  border-radius: 99px; padding: 6px 16px;
+  font-family: var(--font-heading); font-size: 10px; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--saffron-light);
 }
-.chat-bot-desc {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-.chat-status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-heading);
-  font-size: 10px;
-  color: #4CAF50;
-  letter-spacing: 0.15em;
-}
-.status-dot {
-  width: 7px; height: 7px;
-  background: #4CAF50;
-  border-radius: 50%;
-  animation: statusPulse 2s ease-in-out infinite;
-}
-@keyframes statusPulse {
-  0%,100% { opacity: 1; }
-  50%      { opacity: 0.4; }
-}
-/* Model selector */
-.chat-model-bar {
-  background: rgba(0,0,0,0.3);
-  border-bottom: 1px solid var(--border-gold);
-  padding: 10px 24px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.model-label {
-  font-family: var(--font-heading);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-.model-select {
-  background: var(--bg-card);
-  border: 1px solid var(--border-gold);
-  color: var(--gold);
-  padding: 5px 12px;
-  border-radius: 3px;
-  font-family: var(--font-heading);
-  font-size: 11px;
-  cursor: pointer;
-  outline: none;
-}
-.model-select option { background: var(--bg-card); }
-.web-search-toggle {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  cursor: pointer;
-  margin-left: auto;
-}
-.toggle-cb { display: none; }
-.toggle-switch {
-  width: 36px; height: 20px;
-  background: var(--bg-dark);
-  border: 1px solid var(--border-gold);
-  border-radius: 10px;
-  position: relative;
-  transition: background var(--transition);
-}
-.toggle-switch::after {
-  content: '';
-  position: absolute;
-  top: 2px; left: 2px;
-  width: 14px; height: 14px;
-  background: var(--text-muted);
-  border-radius: 50%;
-  transition: all var(--transition);
-}
-.toggle-cb:checked + .toggle-switch { background: rgba(255,107,0,0.3); border-color: var(--saffron); }
-.toggle-cb:checked + .toggle-switch::after { left: calc(100% - 16px); background: var(--saffron); }
-.toggle-text {
-  font-family: var(--font-heading);
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-/* RAG status bar */
-#rag-status-bar {
-  background: rgba(75,0,130,0.15);
-  border-bottom: 1px solid rgba(75,0,130,0.4);
-  padding: 7px 24px;
-  display: none;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  font-family: var(--font-heading);
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-}
-#rag-status-bar.visible { display: flex; }
-.rag-badge {
-  background: linear-gradient(135deg, #4B0082, var(--saffron));
-  color: var(--gold-pale);
-  padding: 3px 10px;
-  border-radius: 99px;
-  font-size: 9px;
-  letter-spacing: 0.2em;
-  font-weight: 700;
-}
-.rag-text { color: #fff; flex: 1; }
-.rag-book-pills { display: flex; gap: 6px; flex-wrap: wrap; }
-.rag-pill {
-  background: rgba(212,160,23,0.1);
-  border: 1px solid var(--border-gold);
-  color: var(--gold);
-  padding: 2px 8px;
-  border-radius: 99px;
-  font-size: 9px;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex; align-items: center; gap: 4px;
-}
-.rag-pill:hover { background: rgba(212,160,23,0.2); }
-.rag-pill.active { background: rgba(255,107,0,0.2); border-color: var(--saffron); color: var(--saffron-light); }
-.rag-pill .pill-x { opacity: 0.5; font-size: 8px; }
-.rag-index-btn {
-  background: transparent;
-  border: 1px solid var(--border-saffron);
-  color: var(--saffron-light);
-  padding: 3px 12px;
-  border-radius: 3px;
-  font-family: var(--font-heading);
-  font-size: 9px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.rag-index-btn:hover { background: rgba(255,107,0,0.1); }
-.rag-index-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-#rag-progress {
-  width: 100%;
-  height: 3px;
-  background: rgba(212,160,23,0.1);
-  border-radius: 99px;
-  overflow: hidden;
-  display: none;
-}
-#rag-progress.visible { display: block; }
-#rag-progress-bar {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #4B0082, var(--saffron), var(--gold));
-  border-radius: 99px;
-  transition: width 0.3s ease;
-}
-/* RAG Active + Extracting Indicator */
-#rag-status-bar.visible { display: flex; }
-#rag-status-bar.extracting {
-  background: rgba(75,0,130,0.35);
-  border-bottom-color: var(--saffron);
-  animation: ragPulse 1.2s ease-in-out infinite;
-}
-@keyframes ragPulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(255,107,0,0.0); }
-  50%      { box-shadow: 0 2px 18px 0 rgba(255,107,0,0.35); }
-}
-.rag-badge.extracting {
+.ai-guru-cta-btn {
+  display: inline-flex; align-items: center; gap: 10px;
   background: linear-gradient(135deg, var(--saffron), var(--gold));
-  color: #000;
-  animation: ragBadgePulse 0.9s steps(2) infinite;
+  color: var(--bg-dark); font-family: var(--font-heading); font-size: 13px;
+  font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+  text-decoration: none; padding: 16px 36px; border-radius: 6px;
+  transition: all 0.3s; box-shadow: 0 4px 20px rgba(255,107,0,0.35);
 }
-@keyframes ragBadgePulse {
-  0%,100% { opacity: 1; }
-  50%      { opacity: 0.6; }
-}
-#rag-extract-banner {
-  display: none;
-  position: fixed;
-  bottom: 24px; left: 50%; transform: translateX(-50%);
-  z-index: 99998;
-  background: linear-gradient(135deg, rgba(75,0,130,0.97), rgba(30,5,0,0.97));
-  border: 1px solid var(--saffron);
-  border-radius: 8px;
-  padding: 14px 26px;
-  box-shadow: 0 4px 32px rgba(255,107,0,0.4);
-  min-width: 320px; max-width: 90vw;
-  font-family: var(--font-heading);
-  text-align: center;
-  backdrop-filter: blur(10px);
-}
-#rag-extract-banner.show { display: block; animation: bannerSlideUp 0.4s ease; }
-@keyframes bannerSlideUp {
-  from { opacity:0; transform: translateX(-50%) translateY(20px); }
-  to   { opacity:1; transform: translateX(-50%) translateY(0); }
-}
-.rag-banner-title {
-  font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase;
-  color: var(--saffron-light); margin-bottom: 6px;
-}
-.rag-banner-book {
-  font-size: 13px; color: var(--gold-pale); margin-bottom: 10px;
-  font-family: var(--font-display); font-size: 12px;
-}
-.rag-banner-chunks {
-  font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
-  color: #c084fc; margin-bottom: 8px; min-height: 16px;
-  transition: color 0.2s;
-}
-.rag-banner-bar-track {
-  width: 100%; height: 6px;
-  background: rgba(212,160,23,0.15);
-  border-radius: 99px; overflow: hidden;
-  border: 1px solid rgba(212,160,23,0.2);
-}
-.rag-banner-bar-fill {
-  height: 100%; width: 0%;
-  background: linear-gradient(90deg, #4B0082, var(--saffron), var(--gold));
-  border-radius: 99px;
-  transition: width 0.25s ease;
-  box-shadow: 0 0 10px rgba(255,107,0,0.6);
-}
-/* RAG source block styling */
-.rag-context-block {
-  background: rgba(75,0,130,0.1);
-  border: 1px solid rgba(75,0,130,0.35);
-  border-radius: 4px;
-  padding: 8px 12px;
-  margin-top: 8px;
-  font-size: 13px;
-}
-.rag-context-title {
-  font-family: var(--font-heading);
-  font-size: 9px;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: #9b59d4;
-  margin-bottom: 5px;
-}
-.rag-chunk-item {
-  color: var(--text-secondary);
-  font-size: 12px;
-  line-height: 1.5;
-  border-left: 2px solid rgba(155,89,212,0.4);
-  padding-left: 8px;
-  margin-bottom: 5px;
-  font-style: italic;
-}
-.rag-chunk-src {
-  font-family: var(--font-heading);
-  font-size: 9px;
-  color: var(--text-muted);
-  letter-spacing: 0.1em;
-  margin-top: 2px;
-}
-/* Messages */
-.chat-messages {
-  height: 440px;
-  overflow-y: auto;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  scroll-behavior: smooth;
-}
-.chat-messages::-webkit-scrollbar { width: 4px; }
-.chat-messages::-webkit-scrollbar-thumb { background: var(--border-gold); border-radius: 2px; }
-.msg {
-  display: flex;
-  gap: 12px;
-  animation: msgSlide 0.3s ease;
-  max-width: 85%;
-}
-@keyframes msgSlide {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.msg.user { flex-direction: row-reverse; align-self: flex-end; }
-.msg-avatar {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  flex-shrink: 0;
-}
-.msg.bot .msg-avatar { background: linear-gradient(135deg, var(--saffron), var(--gold)); }
-.msg.user .msg-avatar { background: rgba(212,160,23,0.15); border: 1px solid var(--border-gold); }
-.msg-body { display: flex; flex-direction: column; gap: 6px; }
-.msg.user .msg-body { align-items: flex-end; }
-.msg-bubble {
-  padding: 12px 18px;
-  border-radius: 4px;
-  font-size: 15px;
-  line-height: 1.7;
-  max-width: 100%;
-}
-.msg.bot .msg-bubble {
-  background: rgba(255,107,0,0.06);
-  border: 1px solid rgba(255,107,0,0.15);
-  border-left: 3px solid var(--saffron);
-  color: var(--text-primary);
-}
-.msg.user .msg-bubble {
-  background: linear-gradient(135deg, rgba(212,160,23,0.15), rgba(255,107,0,0.1));
-  border: 1px solid var(--border-gold);
-  color: var(--text-primary);
-}
-.msg-time {
-  font-size: 10px;
-  color: var(--text-muted);
-  font-family: var(--font-heading);
-  letter-spacing: 0.1em;
-}
-/* Sources */
-.sources-block {
-  margin-top: 10px;
-  padding: 10px 14px;
-  background: rgba(0,0,0,0.3);
-  border: 1px solid var(--border-gold);
-  border-radius: 4px;
-  font-size: 12px;
-}
-.sources-title {
-  font-family: var(--font-heading);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--saffron);
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.source-link {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  color: var(--text-secondary);
-  text-decoration: none;
-  margin-bottom: 4px;
-  transition: color var(--transition);
-  word-break: break-all;
-  font-size: 11px;
-}
-.source-link:hover { color: var(--saffron-light); }
-.source-link::before { content: '⟐'; color: var(--gold); flex-shrink: 0; }
-/* Typing */
-.typing-indicator .msg-bubble {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-  padding: 14px 20px;
-}
-.typing-dot {
-  width: 7px; height: 7px;
-  background: var(--saffron);
-  border-radius: 50%;
-  animation: typingBounce 1.4s ease-in-out infinite;
-}
-.typing-dot:nth-child(2) { animation-delay: 0.2s; }
-.typing-dot:nth-child(3) { animation-delay: 0.4s; }
-@keyframes typingBounce {
-  0%,60%,100% { transform: translateY(0); }
-  30%          { transform: translateY(-8px); }
-}
-/* Suggestions */
-.chat-suggestions {
-  padding: 12px 24px;
-  border-top: 1px solid var(--border-gold);
-  background: rgba(0,0,0,0.2);
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  flex-wrap: wrap;
-}
-.chat-suggestions::-webkit-scrollbar { display: none; }
-.suggestion-chip {
-  background: rgba(255,107,0,0.08);
-  border: 1px solid rgba(255,107,0,0.25);
-  color: var(--saffron-light);
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-family: var(--font-heading);
-  white-space: nowrap;
-  cursor: pointer;
-  transition: all var(--transition);
-  flex-shrink: 0;
-}
-.suggestion-chip:hover { background: rgba(255,107,0,0.2); border-color: var(--saffron); }
-/* Input */
-.chat-input-area {
-  padding: 16px 20px;
-  border-top: 1px solid var(--border-gold);
-  background: rgba(0,0,0,0.25);
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-}
-.chat-input-wrap {
-  flex: 1;
-  position: relative;
-}
-#chat-input {
-  width: 100%;
-  background: var(--bg-card);
-  border: 1px solid var(--border-gold);
-  color: var(--text-primary);
-  padding: 12px 48px 12px 18px;
-  border-radius: 4px;
-  font-family: var(--font-body);
-  font-size: 15px;
-  resize: none;
-  min-height: 48px;
-  max-height: 140px;
-  overflow-y: auto;
-  outline: none;
-  transition: border-color var(--transition);
-  line-height: 1.5;
-}
-#chat-input:focus { border-color: var(--saffron); }
-#chat-input::placeholder { color: var(--text-muted); }
-.input-clear {
-  position: absolute;
-  right: 10px; top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-size: 14px;
-  padding: 4px;
-  display: none;
-  transition: color var(--transition);
-}
-.input-clear.visible { display: block; }
-.input-clear:hover { color: var(--saffron); }
-#send-btn {
-  background: linear-gradient(135deg, var(--saffron), var(--gold));
-  border: none;
-  color: var(--bg-dark);
-  width: 48px; height: 48px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all var(--transition);
-  flex-shrink: 0;
-}
-#send-btn:hover { opacity: 0.85; transform: scale(1.05); }
-#send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-/* API key setup */
-.api-setup {
-  padding: 28px 24px;
-  text-align: center;
-  border-top: 1px solid var(--border-gold);
-  background: rgba(0,0,0,0.2);
-}
-.api-setup p {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-bottom: 16px;
-  line-height: 1.6;
-}
-.api-input-row {
-  display: flex;
-  gap: 10px;
-  max-width: 500px;
-  margin: 0 auto;
-  flex-wrap: wrap;
-}
-.api-key-input {
-  flex: 1;
-  min-width: 200px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-gold);
-  color: var(--text-primary);
-  padding: 10px 16px;
-  border-radius: 3px;
-  font-family: var(--font-body);
-  font-size: 14px;
-  outline: none;
-  transition: border-color var(--transition);
-}
-.api-key-input:focus { border-color: var(--saffron); }
-.api-key-input::placeholder { color: var(--text-muted); }
-.api-save-btn {
-  background: linear-gradient(135deg, var(--saffron), var(--gold));
-  color: var(--bg-dark);
-  border: none;
-  padding: 10px 20px;
-  border-radius: 3px;
-  font-family: var(--font-heading);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all var(--transition);
-}
-.api-save-btn:hover { opacity: 0.85; }
+.ai-guru-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(255,107,0,0.55); opacity: 0.92; }
 /* ═══════════════════════════════════════════════════════
    PHILOSOPHY SECTION
 ═══════════════════════════════════════════════════════ */
@@ -1943,8 +1437,6 @@ footer {
   .deities-grid { grid-template-columns: repeat(3, 1fr); }
   .footer-top { grid-template-columns: 1fr; gap: 32px; }
   .hero-cta-group { flex-direction: column; align-items: center; }
-  .chat-suggestions { flex-wrap: nowrap; overflow-x: auto; }
-  .chat-messages { height: 360px; }
 }
 /* ═══════════════════════════════════════════════════════
    MISC UTILITIES
@@ -4241,7 +3733,7 @@ footer {
 
 <div class="section-sep"></div>
 
-<!-- ═══════════════ AI CHATBOT ═══════════════ -->
+<!-- ═══════════════ AI GURU CTA ═══════════════ -->
 <section id="chatbot-section">
   <div class="section-header reveal">
     <span class="section-label">Divine Knowledge</span>
@@ -4250,108 +3742,31 @@ footer {
       Powered by advanced language models trained in Hindu philosophy. Ask anything about Sanatan Dharma, sacred texts, mythology, rituals, and more.
     </p>
     <div class="section-underline">
-      <span class="underline-line"></span>
-      <span class="underline-dot"></span>
-      <span class="underline-line right"></span>
+      <span class="underline-line"></span><span class="underline-dot"></span><span class="underline-line right"></span>
     </div>
   </div>
 
-  <div class="chatbot-wrapper reveal">
-    <div class="chatbot-container">
-      <!-- Header -->
-      <div class="chat-header">
-        <div class="chat-avatar">ॐ</div>
-        <div class="chat-header-info">
-          <div class="chat-bot-name">Dharma Guru AI</div>
-          <div class="chat-bot-desc">Expert in Vedas, Upanishads, Bhagavad Gita, Puranas & Hindu Mythology</div>
-        </div>
-        <div class="chat-status">
-          <span class="status-dot"></span>
-          <span>Active</span>
-        </div>
+  <div class="ai-guru-cta-wrapper reveal">
+    <div class="ai-guru-cta-card">
+      <div class="ai-guru-avatar">ॐ</div>
+      <div class="ai-guru-cta-title">Dharma Guru AI</div>
+      <p class="ai-guru-cta-desc">
+        Your personal guide to the eternal wisdom of the Vedas, Upanishads, Bhagavad Gita, Puranas &amp; Hindu Mythology. Ask anything — from the meaning of OM to the depths of Advaita Vedanta.
+      </p>
+      <div class="ai-guru-features">
+        <span class="ai-guru-feature-pill">📚 Sacred Texts RAG</span>
+        <span class="ai-guru-feature-pill">🔍 Web Search</span>
+        <span class="ai-guru-feature-pill">🕉️ Vedic Scholar AI</span>
+        <span class="ai-guru-feature-pill">⚡ Powered by Groq</span>
+        <span class="ai-guru-feature-pill">🌐 Multilingual</span>
       </div>
-
-      <!-- Model Bar -->
-      <div class="chat-model-bar">
-        <span class="model-label">Model:</span>
-        <select class="model-select" id="model-select">
-          <optgroup label="Groq (Fast)">
-            <option value="groq:llama-3.3-70b-versatile">Groq — LLaMA 3.3 70B</option>
-            <option value="groq:llama-3.1-8b-instant">Groq — LLaMA 3.1 8B (Instant)</option>
-          </optgroup>
-
-        </select>
-        <label class="web-search-toggle" title="Enable web search for current information">
-          <input type="checkbox" class="toggle-cb" id="web-search-cb" checked />
-          <span class="toggle-switch"></span>
-          <span class="toggle-text">🔍 Web Search</span>
-        </label>
-        <label class="web-search-toggle" title="Enable RAG: AI answers from the actual sacred text PDFs" style="margin-left:0;">
-          <input type="checkbox" class="toggle-cb" id="rag-cb" onchange="toggleRAG(this.checked)" />
-          <span class="toggle-switch"></span>
-          <span class="toggle-text">📚 Sacred Texts RAG</span>
-        </label>
-      </div>
-
-      <!-- RAG Status Bar -->
-      <div id="rag-status-bar">
-        <span class="rag-badge">RAG ACTIVE</span>
-        <span class="rag-text" id="rag-status-text">No texts indexed yet. Index a PDF to enable retrieval.</span>
-        <div class="rag-book-pills" id="rag-book-pills"></div>
-        <button class="rag-index-btn" id="rag-index-btn" onclick="openRAGIndexModal()">＋ Index PDF</button>
-        <div id="rag-progress" style="width:100%"><div id="rag-progress-bar"></div></div>
-      </div>
-
-      <!-- Messages -->
-      <div class="chat-messages" id="chat-messages">
-        <div class="msg bot">
-          <div class="msg-avatar">ॐ</div>
-          <div class="msg-body">
-            <div class="msg-bubble">
-              🙏 <strong>Namaste!</strong> I am <em>Dharma Guru</em>, your guide to the eternal wisdom of Sanatan Dharma.<br><br>
-              I can help you understand the Vedas, Upanishads, Bhagavad Gita, Ramayana, Mahabharata, Puranas, and all aspects of Hindu philosophy, mythology, and ritual.<br><br>
-              I can also search the web for current information and provide sources. How may I serve you today?
-            </div>
-            <div class="msg-time" id="init-time"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Suggestions -->
-      <div class="chat-suggestions">
-        <div class="suggestion-chip" onclick="sendSuggestion(this)">What is the meaning of OM?</div>
-        <div class="suggestion-chip" onclick="sendSuggestion(this)">Explain the Bhagavad Gita's core teachings</div>
-        <div class="suggestion-chip" onclick="sendSuggestion(this)">Who are the Ashta Dikpalakas?</div>
-        <div class="suggestion-chip" onclick="sendSuggestion(this)">What are the 4 Vedas?</div>
-        <div class="suggestion-chip" onclick="sendSuggestion(this)">Tell me about Lord Hanuman</div>
-        <div class="suggestion-chip" onclick="sendSuggestion(this)">What is Moksha?</div>
-        <div class="suggestion-chip" onclick="sendSuggestion(this)">Describe the Mahabharata war</div>
-      </div>
-
-      <!-- Input -->
-      <div class="chat-input-area">
-        <div class="chat-input-wrap">
-          <textarea id="chat-input" placeholder="Ask about Vedas, deities, rituals, philosophy…" rows="1"></textarea>
-          <button class="input-clear" id="input-clear" onclick="clearInput()">✕</button>
-        </div>
-        <button id="send-btn" onclick="sendMessage()" title="Send">➤</button>
-      </div>
-
-      <!-- API key setup -->
-      <div class="api-setup">
-        <p>
-          🔑 Enter your <strong>Groq API key</strong> (free at <a href="https://console.groq.com" target="_blank" style="color:var(--saffron)">console.groq.com</a>).
-          Keys are stored only in your browser's local storage. Once entered, you don't need to re-enter them. 
-        </p>
-        <div class="api-input-row">
-          <input type="password" class="api-key-input" id="groq-key" placeholder="Groq API Key (gsk_...)" />
-          <button class="api-save-btn" onclick="saveKey('groq')">Save Groq</button>
-        </div>
-
-      </div>
+      <a href="aiguru.html" class="ai-guru-cta-btn">
+        🤖 Open AI Guru
+      </a>
     </div>
   </div>
 </section>
+
 
 
 <!-- ═══════════════ FLOATING CONTACT BUTTONS ═══════════════ -->
@@ -4767,46 +4182,8 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closePDFModal();
 });
 /* ═══════════════════════════════════════════════════════
-   AI CHATBOT
+   UTILITIES & RAG ENGINE
 ═══════════════════════════════════════════════════════ */
-const SYSTEM_PROMPT = `You are Dharma Guru, a deeply knowledgeable AI expert in Sanatan Dharma (Hinduism) and ancient Indian philosophy.
-You have profound expertise in:
-- The four Vedas: Rig Veda, Sam Veda, Yajur Veda, Atharva Veda
-- Upanishads (108 Upanishads, especially the major 13)
-- Bhagavad Gita — all 18 chapters in depth
-- Ramayana (Valmiki Ramayana & Tulsidas Ramcharitmanas)
-- Mahabharata — all 18 Parvas, the Pandavas, Kauravas, and Krishna's teachings
-- 18 Major Puranas and 18 Minor Puranas
-- Hanuman Chalisa and other stotras
-- Hindu philosophy: Advaita, Dvaita, Vishishtadvaita Vedanta
-- Yoga systems: Jnana, Bhakti, Karma, Raja Yoga
-- Hindu cosmology, deities, rituals, festivals, pilgrimage sites
-- Sanskrit terms, mantras, and their meanings
-- Dharma, Karma, Samsara, Moksha, Atman, Brahman
-Response style:
-- Begin with a respectful greeting like "Namaste" or "Jai Shri Ram" when appropriate
-- Use Sanskrit terms with their meanings in parentheses
-- Quote relevant shlokas/verses in Sanskrit (transliterated) with English translation
-- Be warm, respectful, and deeply knowledgeable
-- Provide nuanced, detailed answers
-- Reference specific books, chapters, and verses when possible
-- When web search results are provided, integrate them naturally and cite sources
-Always be respectful of all Hindu traditions and sampradayas. Avoid religious controversy.`;
-let chatHistory = [];
-const keys = { groq: '' };
-function loadKeys() {
-  keys.groq = localStorage.getItem('sd_groq_key') || '';
-  if (keys.groq) document.getElementById('groq-key').value = '●'.repeat(20);
-}
-function saveKey(provider) {
-  const inputEl = document.getElementById(provider + '-key');
-  const val = inputEl.value.trim();
-  if (!val || val.startsWith('●')) return;
-  localStorage.setItem('sd_' + provider + '_key', val);
-  keys[provider] = val;
-  inputEl.value = '●'.repeat(20);
-  showNotification('🔑 ' + provider.toUpperCase() + ' key saved!');
-}
 function showNotification(msg) {
   const n = document.createElement('div');
   n.style.cssText = `position:fixed;bottom:24px;right:24px;background:linear-gradient(135deg,var(--saffron),var(--gold));color:var(--bg-dark);padding:12px 20px;border-radius:4px;font-family:var(--font-heading);font-size:12px;font-weight:700;letter-spacing:0.1em;z-index:9999;animation:msgSlide 0.3s ease;`;
@@ -4814,194 +4191,23 @@ function showNotification(msg) {
   document.body.appendChild(n);
   setTimeout(() => n.remove(), 3000);
 }
-function getTime() {
-  return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-}
-function addMessage(role, content, sources = [], ragChunks = []) {
-  const msgs = document.getElementById('chat-messages');
-  const msgDiv = document.createElement('div');
-  msgDiv.className = 'msg ' + role;
-  let sourcesHTML = '';
-  if (sources && sources.length > 0) {
-    sourcesHTML = `<div class="sources-block">
-      <div class="sources-title">🔍 Sources</div>
-      ${sources.map(s => `<a class="source-link" href="${s.url || '#'}" target="_blank" rel="noopener">${s.title || s.url || 'Source'}</a>`).join('')}
-    </div>`;
-  }
-  let ragHTML = '';
-  if (ragChunks && ragChunks.length > 0) {
-    ragHTML = `<div class="rag-context-block">
-      <div class="rag-context-title">📚 Retrieved from Sacred Texts</div>
-      ${ragChunks.map(c => `
-        <div class="rag-chunk-item">${c.text.substring(0, 200).replace(/</g,'&lt;')}…</div>
-        <div class="rag-chunk-src">— ${c.bookTitle} · relevance: ${(c.score * 100).toFixed(0)}%</div>
-      `).join('')}
-    </div>`;
-  }
-  const formattedContent = content
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/\n/g, '<br>');
-  msgDiv.innerHTML = `
-    <div class="msg-avatar">${role === 'bot' ? 'ॐ' : '👤'}</div>
-    <div class="msg-body">
-      <div class="msg-bubble">${formattedContent}</div>
-      ${sourcesHTML}
-      ${ragHTML}
-      <div class="msg-time">${getTime()}</div>
-    </div>`;
-  msgs.appendChild(msgDiv);
-  msgs.scrollTop = msgs.scrollHeight;
-  return msgDiv;
-}
-function addTyping() {
-  const msgs = document.getElementById('chat-messages');
-  const div = document.createElement('div');
-  div.className = 'msg bot typing-indicator';
-  div.id = 'typing-msg';
-  div.innerHTML = `
-    <div class="msg-avatar">ॐ</div>
-    <div class="msg-body">
-      <div class="msg-bubble">
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-      </div>
-    </div>`;
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
-}
-function removeTyping() {
-  const t = document.getElementById('typing-msg');
-  if (t) t.remove();
-}
-// Simple web search via DuckDuckGo scrape or fallback
-async function searchWeb(query) {
-  // Use a CORS proxy to search
-  try {
-    const res = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query + ' Hinduism Sanatan Dharma')}&format=json&no_html=1&skip_disambig=1`);
-    const data = await res.json();
-    const sources = [];
-    if (data.RelatedTopics) {
-      data.RelatedTopics.slice(0, 4).forEach(t => {
-        if (t.FirstURL && t.Text) {
-          sources.push({ url: t.FirstURL, title: t.Text.substring(0, 80) + '…' });
-        }
-      });
-    }
-    if (data.AbstractURL) sources.unshift({ url: data.AbstractURL, title: data.AbstractText ? data.AbstractText.substring(0, 80) + '…' : data.AbstractURL });
-    return { summary: data.AbstractText || '', sources };
-  } catch {
-    return { summary: '', sources: [] };
-  }
-}
-async function callGroq(messages, modelName) {
-  const key = localStorage.getItem('sd_groq_key') || keys.groq;
-  if (!key) throw new Error('Groq API key not set');
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: modelName, messages, max_tokens: 1800, temperature: 0.7 })
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error?.message || 'Groq API error');
-  return data.choices[0].message.content;
-}
-async function sendMessage() {
-  const input = document.getElementById('chat-input');
-  const userMsg = input.value.trim();
-  if (!userMsg) return;
-  input.value = '';
-  document.getElementById('input-clear').classList.remove('visible');
-  input.style.height = 'auto';
-  document.getElementById('send-btn').disabled = true;
-  addMessage('user', userMsg);
-  chatHistory.push({ role: 'user', content: userMsg });
-  addTyping();
-  const modelVal = document.getElementById('model-select').value;
-  const [provider, ...modelParts] = modelVal.split(':');
-  const modelName = modelParts.join(':');
-  const useWebSearch = document.getElementById('web-search-cb').checked;
-  let sources = [];
-  let searchContext = '';
-  let ragChunks = [];
-  try {
-    // Web search
-    if (useWebSearch) {
-      const searchResult = await searchWeb(userMsg);
-      sources = searchResult.sources;
-      if (searchResult.summary) {
-        searchContext = `\n\n[Web Search Context]: ${searchResult.summary}`;
-      }
-    }
-    // RAG retrieval
-    let ragContext = '';
-    if (RAG.enabled && RAG.index.length) {
-      const ragResult = buildRAGContext(userMsg);
-      ragContext = ragResult.context;
-      ragChunks = ragResult.ragChunks;
-    }
-    const msgs = [
-      { role: 'system', content: SYSTEM_PROMPT + searchContext + ragContext },
-      ...chatHistory.slice(-10)
-    ];
-    let reply = '';
-    if (provider === 'groq') {
-      reply = await callGroq(msgs, modelName);
-    }
-    chatHistory.push({ role: 'assistant', content: reply });
-    removeTyping();
-    addMessage('bot', reply, sources, ragChunks);
-  } catch (err) {
-    removeTyping();
-    let errMsg = err.message || 'An error occurred.';
-    if (errMsg.includes('API key not set') || errMsg.includes('not set')) {
-      errMsg = `🔑 Please enter your Groq API key below to use the AI Guru.`;
-    }
-    addMessage('bot', `🙏 Apologies, dear seeker: ${errMsg}\n\nPlease ensure your API key is saved below.`);
-  } finally {
-    document.getElementById('send-btn').disabled = false;
-    input.focus();
-  }
-}
-function sendSuggestion(el) {
-  document.getElementById('chat-input').value = el.textContent;
-  sendMessage();
-}
-function clearInput() {
-  const inp = document.getElementById('chat-input');
-  inp.value = '';
-  document.getElementById('input-clear').classList.remove('visible');
-  inp.style.height = 'auto';
-  inp.focus();
-}
+
 /* ═══════════════════════════════════════════════════════
    RAG ENGINE — TF-IDF + COSINE SIMILARITY
-   Indexes PDFs in the browser using PDF.js, stores chunks,
-   and retrieves top-K relevant passages for every query.
 ═══════════════════════════════════════════════════════ */
-
-// Configure PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-/* --- RAG State ---------------------------------------- */
 const RAG = {
   enabled: false,
-  index: [],      // [{ bookTitle, chunkIndex, text, tf }]
-  idf: {},        // term -> idf score across all chunks
-  books: {},      // bookTitle -> { chunkCount, color }
-  stopWords: new Set(['the','a','an','and','or','but','in','on','at','to','for','of','with','by','from','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','shall','can','not','this','that','these','those','it','its','they','them','their','we','us','our','you','your','he','she','him','her','his','i','me','my','so','as','if','then','than','when','where','who','which','what','how','all','also','more','about','up','out','no','into','through','after','before','between','same','other','such','each','both','over','under','again','further','only','own','too','very','just','most','some','any','there','here','her','him','his','my','our','your'])
+  index: [],
+  idf: {},
+  books: {},
+  stopWords: new Set(['the','a','an','and','or','but','in','on','at','to','for','of','with','by','from','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','shall','can','not','this','that','these','those','it','its','they','them','their','we','us','our','you','your','he','she','him','her','his','i','me','my','so','as','if','then','than','when','where','who','which','what','how','all','also','more','about','up','out','no','into','through','after','before','between','same','other','such','each','both','over','under','again','further','only','own','too','very','just','most','some','any','there','here'])
 };
 
-/* --- Tokenize ------------------------------------------ */
 function tokenize(text) {
-  return text.toLowerCase()
-    .replace(/[^a-z0-9\s]/g, ' ')
-    .split(/\s+/)
-    .filter(w => w.length > 2 && !RAG.stopWords.has(w));
+  return text.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 2 && !RAG.stopWords.has(w));
 }
-
-/* --- TF for one chunk ---------------------------------- */
 function computeTF(tokens) {
   const tf = {};
   tokens.forEach(t => { tf[t] = (tf[t] || 0) + 1; });
@@ -5009,57 +4215,33 @@ function computeTF(tokens) {
   Object.keys(tf).forEach(t => { tf[t] /= len; });
   return tf;
 }
-
-/* --- Rebuild IDF after adding new chunks --------------- */
 function rebuildIDF() {
   const df = {};
-  RAG.index.forEach(chunk => {
-    Object.keys(chunk.tf).forEach(t => { df[t] = (df[t] || 0) + 1; });
-  });
+  RAG.index.forEach(chunk => { Object.keys(chunk.tf).forEach(t => { df[t] = (df[t] || 0) + 1; }); });
   const N = RAG.index.length || 1;
   RAG.idf = {};
-  Object.keys(df).forEach(t => {
-    RAG.idf[t] = Math.log((N + 1) / (df[t] + 1)) + 1;
-  });
+  Object.keys(df).forEach(t => { RAG.idf[t] = Math.log((N + 1) / (df[t] + 1)) + 1; });
 }
-
-/* --- TF-IDF vector for a chunk or query ---------------- */
 function tfidfVector(tf) {
   const vec = {};
-  Object.keys(tf).forEach(t => {
-    vec[t] = tf[t] * (RAG.idf[t] || 1);
-  });
+  Object.keys(tf).forEach(t => { vec[t] = tf[t] * (RAG.idf[t] || 1); });
   return vec;
 }
-
-/* --- Cosine similarity --------------------------------- */
 function cosine(vecA, vecB) {
   const keysA = Object.keys(vecA);
   let dot = 0, normA = 0, normB = 0;
-  keysA.forEach(t => {
-    dot += (vecA[t] || 0) * (vecB[t] || 0);
-    normA += vecA[t] ** 2;
-  });
+  keysA.forEach(t => { dot += (vecA[t] || 0) * (vecB[t] || 0); normA += vecA[t] ** 2; });
   Object.values(vecB).forEach(v => { normB += v ** 2; });
   if (!normA || !normB) return 0;
   return dot / (Math.sqrt(normA) * Math.sqrt(normB));
 }
-
-/* --- Retrieve top-K chunks for a query ----------------- */
 function retrieveChunks(query, topK = 4) {
   if (!RAG.index.length) return [];
-  const qTokens = tokenize(query);
-  const qTF = computeTF(qTokens);
-  const qVec = tfidfVector(qTF);
-  const scored = RAG.index.map(chunk => ({
-    ...chunk,
-    score: cosine(qVec, tfidfVector(chunk.tf))
-  }));
+  const qVec = tfidfVector(computeTF(tokenize(query)));
+  const scored = RAG.index.map(chunk => ({ ...chunk, score: cosine(qVec, tfidfVector(chunk.tf)) }));
   scored.sort((a, b) => b.score - a.score);
   return scored.slice(0, topK).filter(c => c.score > 0);
 }
-
-/* --- Extract text from a PDF (by URL or File) ---------- */
 async function extractPDFText(source) {
   let pdfDoc;
   if (source instanceof File) {
@@ -5074,58 +4256,38 @@ async function extractPDFText(source) {
     const page = await pdfDoc.getPage(p);
     const content = await page.getTextContent();
     texts.push(content.items.map(i => i.str).join(' '));
-    // Update progress bar
-    const pct = Math.round((p / numPages) * 100);
-    setRAGProgress(pct);
+    setRAGProgress(Math.round((p / numPages) * 100));
   }
   return texts.join('\n');
 }
-
-/* --- Chunk text into ~400-token chunks with overlap ---- */
 function chunkText(text, chunkSize = 400, overlap = 80) {
   const words = text.split(/\s+/).filter(Boolean);
   const chunks = [];
   let i = 0;
-  while (i < words.length) {
-    chunks.push(words.slice(i, i + chunkSize).join(' '));
-    i += (chunkSize - overlap);
-  }
+  while (i < words.length) { chunks.push(words.slice(i, i + chunkSize).join(' ')); i += (chunkSize - overlap); }
   return chunks;
 }
-
-/* --- Index a single book ------------------------------- */
 async function indexBook(source, bookTitle) {
-  // Remove existing chunks for this book first
   RAG.index = RAG.index.filter(c => c.bookTitle !== bookTitle);
-
   showRAGProgress(bookTitle);
   setRAGProgress(0);
   updateRAGStatusText(`⚡ Extracting text from "${bookTitle}"…`);
-
   try {
     const rawText = await extractPDFText(source);
     const chunks = chunkText(rawText);
-
-    // Update banner with chunk count live
     const chunksEl = document.getElementById('rag-banner-chunks-text');
     if (chunksEl) chunksEl.textContent = `Indexing ${chunks.length} chunks…`;
     updateRAGStatusText(`⚡ Indexing ${chunks.length} chunks from "${bookTitle}"…`);
-
     chunks.forEach((text, idx) => {
       const tokens = tokenize(text);
-      if (tokens.length < 10) return; // skip near-empty chunks
+      if (tokens.length < 10) return;
       const tf = computeTF(tokens);
       RAG.index.push({ bookTitle, chunkIndex: idx, text, tf });
-      // Live-update banner every 50 chunks
-      if (idx % 50 === 0 && chunksEl) {
-        chunksEl.textContent = `Indexed ${idx} / ${chunks.length} chunks…`;
-      }
+      if (idx % 50 === 0 && chunksEl) chunksEl.textContent = `Indexed ${idx} / ${chunks.length} chunks…`;
     });
-
     rebuildIDF();
     RAG.books[bookTitle] = { chunkCount: chunks.length };
     updateRAGUI();
-    // Final banner update before hiding
     if (chunksEl) chunksEl.textContent = `✅ ${RAG.index.filter(c=>c.bookTitle===bookTitle).length} chunks indexed!`;
     showNotification(`📚 "${bookTitle}" indexed — ${RAG.index.filter(c=>c.bookTitle===bookTitle).length} chunks ready`);
     return true;
@@ -5139,77 +4301,47 @@ async function indexBook(source, bookTitle) {
       : 'No texts indexed yet');
   }
 }
-
-/* --- Index a book from the library ----------------------
-   PDFs live in the same folder as new_edition.html.
-   On GitHub Pages / any HTTP server the relative path loads
-   automatically.  On file:// (local PC), browsers block
-   relative fetches so we fall back to a file picker —
-   the user just selects the same file from their folder.
-   The "Upload Your Own PDF" option handles extra PDFs.      */
 async function indexBookForRAG(filename, title) {
-  if (!RAG.enabled) {
-    document.getElementById('rag-cb').checked = true;
-    toggleRAG(true);
-  }
-
-  // Scroll to the RAG status bar so user can see it's active
+  if (!RAG.enabled) { document.getElementById('rag-cb').checked = true; toggleRAG(true); }
   const ragBar = document.getElementById('rag-status-bar');
-  if (ragBar) {
-    ragBar.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-
-  // HTTP/HTTPS server (GitHub Pages, localhost, etc.) — load directly
+  if (ragBar) ragBar.scrollIntoView({ behavior: 'smooth', block: 'center' });
   if (location.protocol !== 'file:') {
-    const ok = await indexBook(filename, title);
-    if (ok) document.getElementById('chat').scrollIntoView({ behavior: 'smooth' });
+    await indexBook(filename, title);
     return;
   }
-
-  // file:// — browser blocks relative fetches; use a hidden file picker instead.
-  // Pre-store the book title so it indexes under the correct name regardless of filename chosen.
   window._pendingRAGBookTitle = title;
   let picker = document.getElementById('_rag-book-picker');
   if (!picker) {
     picker = document.createElement('input');
-    picker.type = 'file';
-    picker.accept = '.pdf';
-    picker.id = '_rag-book-picker';
-    picker.style.display = 'none';
+    picker.type = 'file'; picker.accept = '.pdf';
+    picker.id = '_rag-book-picker'; picker.style.display = 'none';
     document.body.appendChild(picker);
     picker.addEventListener('change', function () {
       if (!this.files || !this.files[0]) return;
       const file = this.files[0];
-      const t    = window._pendingRAGBookTitle || file.name.replace(/\.pdf$/i, '');
+      const t = window._pendingRAGBookTitle || file.name.replace(/\.pdf$/i, '');
       window._pendingRAGBookTitle = null;
-      this.value = ''; // reset so same file can be picked again next time
-      indexBook(file, t).then(ok => {
-        if (ok) document.getElementById('chat').scrollIntoView({ behavior: 'smooth' });
-      });
+      this.value = '';
+      indexBook(file, t);
     });
   }
-  showNotification(`📂 Local mode — select "${filename}" from your SANATANS folder`);
+  showNotification(`📂 Local mode — select "${filename}" from your folder`);
   picker.click();
 }
-/* --- Toggle RAG on/off --------------------------------- */
 function toggleRAG(enabled) {
   RAG.enabled = enabled;
   document.getElementById('rag-status-bar').classList.toggle('visible', enabled);
   if (enabled && Object.keys(RAG.books).length === 0) {
-    updateRAGStatusText('No texts indexed yet. Click "＋ Index PDF" or use "🧠 Index for AI" on a book card.');
+    updateRAGStatusText('No texts indexed yet. Use "🧠 Index for AI" on a book card.');
   }
 }
-
-/* --- UI helpers ---------------------------------------- */
 function setRAGProgress(pct) {
   document.getElementById('rag-progress-bar').style.width = pct + '%';
-  const bannerBar = document.getElementById('rag-banner-bar');
-  if (bannerBar) bannerBar.style.width = pct + '%';
+  const b = document.getElementById('rag-banner-bar'); if (b) b.style.width = pct + '%';
 }
 function showRAGProgress(bookTitle) {
   document.getElementById('rag-progress').classList.add('visible');
   document.getElementById('rag-index-btn').disabled = true;
-  // Show the floating extraction banner
   const banner = document.getElementById('rag-extract-banner');
   const bookName = document.getElementById('rag-banner-book-name');
   const chunksText = document.getElementById('rag-banner-chunks-text');
@@ -5218,7 +4350,6 @@ function showRAGProgress(bookTitle) {
     if (chunksText) chunksText.textContent = 'Reading PDF pages…';
     banner.classList.add('show');
   }
-  // Show & pulse the RAG status bar
   const statusBar = document.getElementById('rag-status-bar');
   if (statusBar) {
     statusBar.classList.add('visible', 'extracting');
@@ -5230,10 +4361,8 @@ function hideRAGProgress() {
   document.getElementById('rag-progress').classList.remove('visible');
   document.getElementById('rag-index-btn').disabled = false;
   setRAGProgress(0);
-  // Hide banner
   const banner = document.getElementById('rag-extract-banner');
   if (banner) banner.classList.remove('show');
-  // Stop pulsing the RAG status bar
   const statusBar = document.getElementById('rag-status-bar');
   if (statusBar) {
     statusBar.classList.remove('extracting');
@@ -5241,9 +4370,7 @@ function hideRAGProgress() {
     if (badge) badge.classList.remove('extracting');
   }
 }
-function updateRAGStatusText(text) {
-  document.getElementById('rag-status-text').textContent = text;
-}
+function updateRAGStatusText(text) { document.getElementById('rag-status-text').textContent = text; }
 function updateRAGUI() {
   const pills = document.getElementById('rag-book-pills');
   pills.innerHTML = '';
@@ -5258,17 +4385,13 @@ function removeRAGBook(title, e) {
   e.stopPropagation();
   RAG.index = RAG.index.filter(c => c.bookTitle !== title);
   delete RAG.books[title];
-  rebuildIDF();
-  updateRAGUI();
+  rebuildIDF(); updateRAGUI();
   updateRAGStatusText(Object.keys(RAG.books).length
     ? `${RAG.index.length} chunks from ${Object.keys(RAG.books).length} text(s) indexed`
     : 'No texts indexed yet');
   showNotification(`🗑️ "${title}" removed from RAG index`);
 }
-
-/* --- RAG Index Modal ----------------------------------- */
 function openRAGIndexModal() {
-  // Populate book list in modal
   const container = document.getElementById('rag-modal-books');
   container.innerHTML = '';
   BOOKS.forEach(book => {
@@ -5276,10 +4399,7 @@ function openRAGIndexModal() {
     const btn = document.createElement('button');
     btn.style.cssText = `background:${indexed ? 'rgba(75,0,130,0.25)' : 'var(--bg-card)'};border:1px solid ${indexed ? 'rgba(155,89,212,0.5)' : 'var(--border-gold)'};color:${indexed ? '#c084fc' : 'var(--text-secondary)'};padding:8px 12px;border-radius:4px;font-family:var(--font-heading);font-size:10px;letter-spacing:0.1em;cursor:pointer;text-align:left;transition:all 0.2s;`;
     btn.innerHTML = `${book.symbol} ${book.title}${indexed ? ' ✓' : ''}`;
-    btn.onclick = async () => {
-      closeRAGModal();
-      await indexBookForRAG(book.file, book.title);
-    };
+    btn.onclick = async () => { closeRAGModal(); await indexBookForRAG(book.file, book.title); };
     container.appendChild(btn);
   });
   document.getElementById('rag-modal-overlay').style.display = 'block';
@@ -5298,26 +4418,6 @@ function handleRAGFileSelect(input) {
   indexBook(file, title);
 }
 
-/* --- Build RAG context string for prompt --------------- */
-function buildRAGContext(query) {
-  if (!RAG.enabled || !RAG.index.length) return { context: '', ragChunks: [] };
-  const chunks = retrieveChunks(query, 4);
-  if (!chunks.length) return { context: '', ragChunks: [] };
-  const context = chunks.map((c, i) =>
-    `[Passage ${i+1} from "${c.bookTitle}"]: ${c.text.substring(0, 600)}`
-  ).join('\n\n');
-  return { context: `\n\n[Sacred Text Passages — use these as primary reference, cite the source]:\n${context}`, ragChunks: chunks };
-}
-
-// Auto-resize textarea & show clear button
-document.getElementById('chat-input').addEventListener('input', function() {
-  this.style.height = 'auto';
-  this.style.height = Math.min(this.scrollHeight, 140) + 'px';
-  document.getElementById('input-clear').classList.toggle('visible', this.value.length > 0);
-});
-document.getElementById('chat-input').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-});
 /* ═══════════════════════════════════════════════════════
    CANVAS STARFIELD
 ═══════════════════════════════════════════════════════ */
@@ -6863,9 +5963,7 @@ container.addEventListener('click',e=>{if(!e.target.closest('.ft-node')&&!dragMo
 document.addEventListener('DOMContentLoaded', () => {
   renderBooks();
   buildTicker();
-  loadKeys();
   observeReveal();
-  document.getElementById('init-time').textContent = getTime();
   renderHinduCalendar();
   renderFestivals();
   buildFamilyTree();
@@ -7178,7 +6276,7 @@ async function explainShloka() {
   if (!groqKey) {
     document.getElementById('shloka-ai-loading').style.display = 'none';
     document.getElementById('shloka-ai-placeholder').style.display = 'block';
-    document.getElementById('shloka-ai-placeholder').innerHTML = '<p style="color:var(--saffron-light)">🔑 Please enter your <strong>Groq API key</strong> in the AI Guru section below to unlock AI explanations.</p>';
+    document.getElementById('shloka-ai-placeholder').innerHTML = '<p style="color:var(--saffron-light)">🔑 Please enter your <strong>Groq API key</strong> in the <a href="aiguru.html" style="color:var(--saffron)">AI Guru</a> to unlock AI explanations.</p>';
     btn.disabled = false;
     btn.textContent = '✨ Try Again';
     return;
